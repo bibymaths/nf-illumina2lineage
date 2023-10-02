@@ -349,8 +349,7 @@ multiple tools and samples in a single report, Bioinformatics, Volume 32, Issue 
 3047–3048, https://doi.org/10.1093/bioinformatics/btw354
 4. Andrews, S. (2010). FastQC: A Quality Control Tool for High Throughput Sequence Data [Online].
 5. Shifu Chen, Yanqing Zhou, Yaru Chen, Jia Gu, fastp: an ultra-fast all-in-one FASTQ preprocessor,
-Bioinformatics, Volume 34, Issue 17, September 2018, Pages i884–i890, https://doi.org/10.1093/
-bioinformatics/bty560
+Bioinformatics, Volume 34, Issue 17, September 2018, Pages i884–i890, https://doi.org/10.1093/bioinformatics/bty560
 6. Heng Li, Minimap2: pairwise alignment for nucleotide sequences, Bioinformatics, Volume 34,
 Issue 18, September 2018, Pages 3094–3100, https://doi.org/10.1093/bioinformatics/bty191
 7. Petr Danecek, James K Bonfield, Jennifer Liddle, John Marshall, Valeriu Ohan, Martin O
@@ -358,11 +357,9 @@ Pollard, Andrew Whitwham, Thomas Keane, Shane A McCarthy, Robert M Davies, Heng 
 Twelve years of SAMtools and BCFtools, GigaScience, Volume 10, Issue 2, February 2021,
 giab008, https://doi.org/10.1093/gigascience/giab008
 8. Robinson, J. T., Thorvaldsdóttir, H., Winckler, W., Guttman, M., Lander, E. S., Getz, G., &
-Mesirov, J. P. (2011). Integrative genomics viewer. Nature biotechnology, 29(1), 24–26. https://
-doi.org/10.1038/nbt.1754
+Mesirov, J. P. (2011). Integrative genomics viewer. Nature biotechnology, 29(1), 24–26. https://doi.org/10.1038/nbt.1754
 9. O'Toole Á, Hill V, Pybus OG et al. Tracking the international spread of SARS-CoV-2 lineages B.1.1.7 and
-B.1.351/501Y-V2 [version 1; peer review: 3 approved]. Wellcome Open Res 2021, 6:121 (https://doi.org/10.12688/
-wellcomeopenres.16661.1)
+B.1.351/501Y-V2 [version 1; peer review: 3 approved]. Wellcome Open Res 2021, 6:121 (https://doi.org/10.12688/wellcomeopenres.16661.1)
 10. Áine O’Toole, Emily Scher, Anthony Underwood, Ben Jackson, Verity Hill, John T McCrone, Rachel
 Colquhoun, Chris Ruis, Khalil Abu-Dahab, Ben Taylor, Corin Yeats, Louis du Plessis, Daniel Maloney, Nathan
 Medd, Stephen W Attwood, David M Aanensen, Edward C Holmes, Oliver G Pybus, Andrew Rambaut,
@@ -378,16 +375,14 @@ minimize false-negative mutations in amplicon next-generation sequencing. Sci Re
 arXiv preprint arXiv:1207.3907 [q-bio.GN] 2012
 15. Vcflib and tools for processing the VCF variant call format. Erik Garrison, Zev N.
 Kronenberg, Eric T. Dawson, Brent S. Pedersen, Pjotr Prins. bioRxiv 2021.05.21.445151; doi:
-https://doi.org 10.1101/2021.05.21.445151
+https://doi.org/10.1101/2021.05.21.445151
 16. Petr Danecek, Adam Auton, Goncalo Abecasis, Cornelis A. Albers, Eric Banks, Mark A. DePristo, Robert E. Handsaker,
 Gerton Lunter, Gabor T. Marth, Stephen T. Sherry, Gilean McVean, Richard Durbin, 1000 Genomes Project Analysis
-Group, The variant call format and VCFtools, Bioinformatics, Volume 27, Issue 15, August 2011, Pages 2156–2158, https://
-doi.org/10.1093/bioinformatics/btr330
+Group, The variant call format and VCFtools, Bioinformatics, Volume 27, Issue 15, August 2011, Pages 2156–2158, https://doi.org/10.1093/bioinformatics/btr330
 17. Waterhouse, A.M., Procter, J.B., Martin, D.M.A, Clamp, M., Barton, G.J (2009), "Jalview version 2: A Multiple Sequence
 Alignment and Analysis Workbench,” Bioinformatics 25 (9) 1189-1191 doi: 10.1093/bioinformatics/btp033
 18. Nguyen, L. T., Schmidt, H. A., von Haeseler, A., & Minh, B. Q. (2015). IQ-TREE: a fast and effective stochastic algorithm
-for estimating maximum-likelihood phylogenies. Molecular biology and evolution, 32(1), 268–274. https://doi.org/10.1093/
-molbev/msu300
+for estimating maximum-likelihood phylogenies. Molecular biology and evolution, 32(1), 268–274. https://doi.org/10.1093/molbev/msu300
 19. Bui Quang Minh, Heiko A Schmidt, Olga Chernomor, Dominik Schrempf, Michael D Woodhams, Arndt von Haeseler,
 Robert Lanfear, IQ-TREE 2: New Models and Efficient Methods for Phylogenetic Inference in the Genomic Era, Molecular
 Biology and Evolution, Volume 37, Issue 5, May 2020, Pages 1530–1534, https://doi.org/10.1093/molbev/msaa015
