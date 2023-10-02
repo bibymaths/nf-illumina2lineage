@@ -1,10 +1,13 @@
 # Project: SARS-CoV-2 genome assembly from Illumina reads 
-## Course: SARS-2 Bioinformatics & Data Science 
-## Intructors: Max von Kleist, Martin Hölzer 
-## Institution: Freie Universität Berlin, Robert-Koch Institute
-![alt_text](methodSARS.svg)
+Course: SARS-2 Bioinformatics & Data Science 
+Intructors: Max von Kleist, Martin Hölzer 
+Institution: Freie Universität Berlin, Robert-Koch Institute 
+
+![alt_text](methodSARS.svg) 
+
 ### Data & File description  
-![alt_text](filedesc.png)
+![alt_text](filedesc.png) 
+
 ### Step 1 - Preliminary  
 
 Installing environment manager: _mamba=1.4.2_ and _conda=23.3.1 _ 
