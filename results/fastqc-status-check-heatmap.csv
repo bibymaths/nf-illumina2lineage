@@ -1,0 +1,133 @@
+"Section Name","Series 1 (y)","Series 1 (value)"
+"Basic Statistics","PE1.R1",1
+"Basic Statistics","PE1.R2",1
+"Basic Statistics","PE2.R1",1
+"Basic Statistics","PE2.R2",1
+"Basic Statistics","PE3.R1",1
+"Basic Statistics","PE3.R2",1
+"Basic Statistics","PE1.R1.clean",1
+"Basic Statistics","PE1.R2.clean",1
+"Basic Statistics","PE2.R1.clean",1
+"Basic Statistics","PE2.R2.clean",1
+"Basic Statistics","PE3.R1.clean",1
+"Basic Statistics","PE3.R2.clean",1
+"Per Base Sequence Quality","PE1.R1",1
+"Per Base Sequence Quality","PE1.R2",1
+"Per Base Sequence Quality","PE2.R1",1
+"Per Base Sequence Quality","PE2.R2",1
+"Per Base Sequence Quality","PE3.R1",1
+"Per Base Sequence Quality","PE3.R2",1
+"Per Base Sequence Quality","PE1.R1.clean",1
+"Per Base Sequence Quality","PE1.R2.clean",1
+"Per Base Sequence Quality","PE2.R1.clean",1
+"Per Base Sequence Quality","PE2.R2.clean",1
+"Per Base Sequence Quality","PE3.R1.clean",1
+"Per Base Sequence Quality","PE3.R2.clean",1
+"Per Tile Sequence Quality","PE1.R1",1
+"Per Tile Sequence Quality","PE1.R2",0.5
+"Per Tile Sequence Quality","PE2.R1",1
+"Per Tile Sequence Quality","PE2.R2",1
+"Per Tile Sequence Quality","PE3.R1",0.5
+"Per Tile Sequence Quality","PE3.R2",0.5
+"Per Tile Sequence Quality","PE1.R1.clean",0.25
+"Per Tile Sequence Quality","PE1.R2.clean",0.5
+"Per Tile Sequence Quality","PE2.R1.clean",1
+"Per Tile Sequence Quality","PE2.R2.clean",1
+"Per Tile Sequence Quality","PE3.R1.clean",0.5
+"Per Tile Sequence Quality","PE3.R2.clean",0.5
+"Per Sequence Quality Scores","PE1.R1",1
+"Per Sequence Quality Scores","PE1.R2",1
+"Per Sequence Quality Scores","PE2.R1",1
+"Per Sequence Quality Scores","PE2.R2",1
+"Per Sequence Quality Scores","PE3.R1",1
+"Per Sequence Quality Scores","PE3.R2",1
+"Per Sequence Quality Scores","PE1.R1.clean",1
+"Per Sequence Quality Scores","PE1.R2.clean",1
+"Per Sequence Quality Scores","PE2.R1.clean",1
+"Per Sequence Quality Scores","PE2.R2.clean",1
+"Per Sequence Quality Scores","PE3.R1.clean",1
+"Per Sequence Quality Scores","PE3.R2.clean",1
+"Per Base Sequence Content","PE1.R1",0.25
+"Per Base Sequence Content","PE1.R2",0.25
+"Per Base Sequence Content","PE2.R1",0.25
+"Per Base Sequence Content","PE2.R2",0.25
+"Per Base Sequence Content","PE3.R1",0.25
+"Per Base Sequence Content","PE3.R2",0.25
+"Per Base Sequence Content","PE1.R1.clean",0.25
+"Per Base Sequence Content","PE1.R2.clean",0.25
+"Per Base Sequence Content","PE2.R1.clean",0.25
+"Per Base Sequence Content","PE2.R2.clean",0.25
+"Per Base Sequence Content","PE3.R1.clean",0.25
+"Per Base Sequence Content","PE3.R2.clean",0.25
+"Per Sequence GC Content","PE1.R1",0.25
+"Per Sequence GC Content","PE1.R2",0.25
+"Per Sequence GC Content","PE2.R1",0.25
+"Per Sequence GC Content","PE2.R2",0.25
+"Per Sequence GC Content","PE3.R1",0.5
+"Per Sequence GC Content","PE3.R2",0.5
+"Per Sequence GC Content","PE1.R1.clean",0.5
+"Per Sequence GC Content","PE1.R2.clean",0.5
+"Per Sequence GC Content","PE2.R1.clean",0.25
+"Per Sequence GC Content","PE2.R2.clean",0.25
+"Per Sequence GC Content","PE3.R1.clean",0.5
+"Per Sequence GC Content","PE3.R2.clean",0.5
+"Per Base N Content","PE1.R1",1
+"Per Base N Content","PE1.R2",1
+"Per Base N Content","PE2.R1",1
+"Per Base N Content","PE2.R2",1
+"Per Base N Content","PE3.R1",1
+"Per Base N Content","PE3.R2",1
+"Per Base N Content","PE1.R1.clean",1
+"Per Base N Content","PE1.R2.clean",1
+"Per Base N Content","PE2.R1.clean",1
+"Per Base N Content","PE2.R2.clean",1
+"Per Base N Content","PE3.R1.clean",1
+"Per Base N Content","PE3.R2.clean",1
+"Sequence Length Distribution","PE1.R1",0.5
+"Sequence Length Distribution","PE1.R2",0.5
+"Sequence Length Distribution","PE2.R1",0.5
+"Sequence Length Distribution","PE2.R2",0.5
+"Sequence Length Distribution","PE3.R1",0.5
+"Sequence Length Distribution","PE3.R2",0.5
+"Sequence Length Distribution","PE1.R1.clean",0.5
+"Sequence Length Distribution","PE1.R2.clean",0.5
+"Sequence Length Distribution","PE2.R1.clean",0.5
+"Sequence Length Distribution","PE2.R2.clean",0.5
+"Sequence Length Distribution","PE3.R1.clean",0.5
+"Sequence Length Distribution","PE3.R2.clean",0.5
+"Sequence Duplication Levels","PE1.R1",0.25
+"Sequence Duplication Levels","PE1.R2",0.25
+"Sequence Duplication Levels","PE2.R1",0.25
+"Sequence Duplication Levels","PE2.R2",0.25
+"Sequence Duplication Levels","PE3.R1",0.25
+"Sequence Duplication Levels","PE3.R2",0.25
+"Sequence Duplication Levels","PE1.R1.clean",0.25
+"Sequence Duplication Levels","PE1.R2.clean",0.25
+"Sequence Duplication Levels","PE2.R1.clean",0.25
+"Sequence Duplication Levels","PE2.R2.clean",0.25
+"Sequence Duplication Levels","PE3.R1.clean",0.25
+"Sequence Duplication Levels","PE3.R2.clean",0.25
+"Overrepresented Sequences","PE1.R1",0.25
+"Overrepresented Sequences","PE1.R2",0.25
+"Overrepresented Sequences","PE2.R1",1
+"Overrepresented Sequences","PE2.R2",1
+"Overrepresented Sequences","PE3.R1",1
+"Overrepresented Sequences","PE3.R2",1
+"Overrepresented Sequences","PE1.R1.clean",0.25
+"Overrepresented Sequences","PE1.R2.clean",0.25
+"Overrepresented Sequences","PE2.R1.clean",1
+"Overrepresented Sequences","PE2.R2.clean",1
+"Overrepresented Sequences","PE3.R1.clean",1
+"Overrepresented Sequences","PE3.R2.clean",1
+"Adapter Content","PE1.R1",0.25
+"Adapter Content","PE1.R2",0.25
+"Adapter Content","PE2.R1",1
+"Adapter Content","PE2.R2",1
+"Adapter Content","PE3.R1",1
+"Adapter Content","PE3.R2",1
+"Adapter Content","PE1.R1.clean",1
+"Adapter Content","PE1.R2.clean",1
+"Adapter Content","PE2.R1.clean",1
+"Adapter Content","PE2.R2.clean",1
+"Adapter Content","PE3.R1.clean",1
+"Adapter Content","PE3.R2.clean",1
