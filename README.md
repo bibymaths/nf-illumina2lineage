@@ -12,15 +12,15 @@ Institution: Freie Universität Berlin, Robert-Koch Institute <br>
 
 Installing environment manager: _mamba=1.4.2_ and _conda=23.3.1 _ 
  
-```bash
+```shell
 wget "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh" 
-bash Mambaforge-Linux-x86_64.sh 
+shell Mambaforge-Linux-x86_64.sh 
 conda update conda  
 ```
  
 Adding channels
  
-```bash
+```shell
 conda config --add channels default
 conda config --add channels bioconda
 conda config --add channels conda-forge  
@@ -28,14 +28,14 @@ conda config --add channels conda-forge
 
 Creating environment with tools
 
-```bash
+```shell
 mamba create -y -p envs/projectSARS  multiqc, fastqc, fastp, minimap2, samtools, bcftools, igv, pangolin, president, bamclipper, freebayes, vcftools, vcflib, mafft, bedtools, iqtree, jalview gnuplot
 mamba activate /home/abhinavmishra/envs/projectSARS  
 ```
 
 Downloading data, and creating three folder for PE data
 
-```bash
+```shell
 mkdir sars-project
 cd sars-project
 
@@ -49,7 +49,7 @@ rm illumina-amplicon-capture-wgs.tar.gz
 
 Download reference genome 
 
-```bash
+```shell
 ## NCBI Entrez Direct UNIX E-utilities 
 ## download reference genome, and index
 sh -c "$(wget -q https://ftp.ncbi.nlm.nih.gov/entrez/entrezdirect/install-edirect.sh -O -)"
@@ -59,7 +59,7 @@ esearch -db nucleotide -query "NC_045512.2" | efetch -format fasta > reference.f
  
 ### Step 2 - Quality Control
 
-```bash
+```shell
 ## Declaring some environment variables
 ILLUMINA_SAMPLE1='200408_20-04246_A_S1_L000_R1_001.fastq.gz'
 ILLUMINA_SAMPLE2='200408_20-04246_A_S1_L000_R2_001.fastq.gz' 
@@ -71,7 +71,7 @@ ILLUMINA_SAMPLE6='200423_20-04411_A_S1_L000_R2_001.fastq.gz'
 
 For each PE group/pair, we will do QC analysis and preprocessing using fastqc+fastp 
 
-```bash
+```shell
 # --cut_right  = 5’->3’ : meanQ <20 (drop bases-stop)
 # --correction = overlap correction - base quality, > Q20
 
@@ -94,7 +94,7 @@ fastqc -t 8 pair3.R{1,2}.clean.fastq.gz
 
 Comparing _fastqc_ and _fastp_ reports 
 
-```bash
+```shell
 # recrusive search on the html reports in the directory
 # modify filenames according to readability to user in the report
 multiqc .
@@ -104,7 +104,7 @@ multiqc .
  
 Aligning Illumina PE-reads with reference that runs a sequence alignment program that aligns DNA, creating _.sam _ files  
 
-```bash
+```shell
 # alignment score >= 80
 # 20,000 >= bandwidth >= 500
 minimap2 -x sr -t 8 -a -o minimap2-illumina.sam reference.fasta pair1.R1.clean.fastq.gz pair1.R2.clean.fastq.gz  
@@ -114,7 +114,7 @@ minimap2 -x sr -t 8 -a -o minimap2-illumina.sam reference.fasta pair3.R1.clean.f
 
 For each pair, convert _.sam_ to _.bam_ and processing mapping reads 
 
-```bash
+```shell
 for SAM in minimap2-illumina.sam; do
     BN=$(basename $SAM.sam); 
     samtools view -bS $SAM > $BN.bam; 
@@ -125,7 +125,7 @@ for SAM in minimap2-illumina.sam; do
  
 The loop above indexes and sorts, then visualize the mapped reads in _igv_ viewer for both: original and sorted _.bam_ files 
 
-```bash
+```shell
 igv&
 ```
 
@@ -134,7 +134,7 @@ igv&
 
 We checked and related to cleanplex amplicons _.bedpe_ file 
 
-```bash
+```shell
 wget --no-check-certificate https://osf.io/4nztj/download -O bed_files/cleanplex.amplicons.bedpe  
 ## Checking the difference of locations and modifying after
 bedtools pairtobed -a bed_files/cleanplex.amplicons.bedpe -b bed_files/SARSCoV2.amplicon.bed -type neither 
@@ -144,7 +144,7 @@ bedtools pairtobed -a bed_files/cleanplex.amplicons.bedpe -b bed_files/SARSCoV2.
 
 After matching the _.FASTA_ header and _ID_s 
 
-```bash
+```shell
 head reference.fasta 
 head bed_files/cleanplex.amplicons.bedpe 
 sed 's/NM_003194/NC_045512.2/g' bed_files/cleanplex.amplicons.bedpe > bed_files/SARSCoV2.amplicons.bedpe
@@ -152,7 +152,7 @@ sed 's/NM_003194/NC_045512.2/g' bed_files/cleanplex.amplicons.bedpe > bed_files/
 
 Finally, clipping the primer sequences
 
-```bash
+```shell
 # For every PE folder 
 bamclipper.sh -b minimap2-illumina.sorted.bam -p SARSCoV2.amplicons.bedpe -n 8 
 ```
@@ -164,14 +164,14 @@ _--min-alternate-fraction_ (N fraction of observations in supporting an allele)
 _--min-coverage_, _--pooled-continuous_ (number of samples in the pool)
 _--haplotype-length_ (short reads issue - avoid base quality recalibration )
 
-```bash
+```shell
 # For every PE folder
 freebayes -f reference.fasta --min-alternate-count 10 --min-alternate-fraction 0.1 --min-coverage 20 --pooled-continuous --haplotype-length -1 minimap2-illumina.sorted.primerclipped.bam > freebayes-illumina.vcf 
 ```
 
 PE3 didn't had any variants so a quorum effort was done that gave a lot of unknown, unphased samples using _--report-monomorphic_ (loci which appear to bemonomorphic, and alleles, even those not present in called genotypes)
 
-```bash
+```shell
 # For PE3
 freebayes -f reference.fasta -b minimap2-illumina.sorted.primerclipped.bam --report-monomorphic --pooled-continuous > freebayes-illumina.vcf
 ```
@@ -255,7 +255,7 @@ write.vcf(chrom2, file = "~/sars-project/pair3/masked-strict.vcf", mask = TRUE)
 
 For generating _.vcf_ file statistics for interpretation and reassessment 
 
-```bash
+```shell
 ## mean depth per individual
 vcftools --gzvcf masked-strict.vcf.gz --depth --out filterVCF/stats   
 ## mean depth per site
@@ -277,7 +277,7 @@ cat pair1/masked.vcf | vcf-tstv >> pair1/filterVCF/fullstatstree.txt
 
 For generating some plots using a perl [script](https://github.com/ENCODE-DCC/chip-seq-pipeline/blob/master/dnanexus/bam2tagalign/resources/usr/local/bin/samtools-1.0/bin/plot-bamstats) from [Petr Danecek](https://www.sanger.ac.uk/person/danecek-petr/) 
 
-```bash
+```shell
 #For every PE
 samtools stats minimap2-illumina.sorted.primerclipped.bam > bamstats.bam.bc
 perl bamstats.pl -p gnuplots/ bamstats.bam.bc
@@ -287,7 +287,7 @@ perl bamstats.pl -p gnuplots/ bamstats.bam.bc
 
 After making the variant calls, normalising indels and filtering low-coverage
 
-```bash
+```shell
 #PE1
 bcftools view masked-strict.vcf -Oz -o masked-strict.vcf.gz 
 bcftools index masked-strict.vcf.gz 
@@ -313,7 +313,7 @@ Put all three consensus from PE datsets into one _.fasta_ file
 
 For the dynamic nomenclature of SARS-CoV-2 lineages a.k.a. pangloin nomenclature, and assigning most likely lineage (Pango lineage) to query sequences
 
-```bash
+```shell
 pangolin --update 
 pangolin --update-data 
 pangolin -t 8 consensus-seqs.fasta 
@@ -323,7 +323,7 @@ pangolin -t 8 consensus-seqs.fasta
 
 Based on calculating pairwise nucleotide identity and reporting ambiguous _N_'s
 
-```bash
+```shell
 # use -a for storing the alignment
 president -r reference.fasta -q consensus-seqs.fasta -t 8 -a -p output/ -f consensus_ 
 ```
@@ -332,7 +332,7 @@ president -r reference.fasta -q consensus-seqs.fasta -t 8 -a -p output/ -f conse
 
 For checking the positions of the mismatches, and distance matrix between each and every query and reference sequences
 
-```bash
+```shell
 mafft --thread 8 consensus-seqs.fasta > alignment.fasta
 jalview -open alignment.fasta 
 iqtree -nt 8 -s alignment.fasta --prefix phylo 
