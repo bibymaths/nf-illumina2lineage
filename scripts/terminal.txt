@@ -1,0 +1,233 @@
+## Installing environment manager 
+ 
+wget "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh" 
+bash Mambaforge-Linux-x86_64.sh 
+conda update conda  
+ 
+## Add channels
+conda config --add channels default
+conda config --add channels bioconda
+conda config --add channels conda-forge  
+ 
+## Creating environment  
+## Initial tools 
+
+mamba create -y -p envs/projectSARS multiqc fastqc fastp nanoplot filtlong minimap2 samtools bcftools igv pangolin president snpeff bamclipper freebayes
+mamba activate /home/abhinavmishra/envs/projectSARS  
+ 
+## Project folder 
+
+mkdir sars-project
+cd sars-project    
+
+## Downloading data 
+wget --no-check-certificate https://osf.io/qu3bh/download -O illumina-amplicon-capture-wgs.tar.gz  
+## Unzip (silent)
+tar -xf illumina-amplicon-capture-wgs.tar.gz 
+
+mv /home/abhinavmishra/sars-project/illumina-amplicon-capture-wgs/* /home/abhinavmishra/sars-project/ 
+sudo rm -rf illumina-amplicon-capture-wgs 
+rm illumina-amplicon-capture-wgs.tar.gz   
+ 
+## Declaring some environment variables
+ILLUMINA_SAMPLE1='200408_20-04246_A_S1_L000_R1_001.fastq.gz'
+ILLUMINA_SAMPLE2='200408_20-04246_A_S1_L000_R2_001.fastq.gz' 
+ILLUMINA_SAMPLE3='200422_20-04444_A_S1_L000_R1_001.fastq.gz'
+ILLUMINA_SAMPLE4='200422_20-04444_A_S1_L000_R2_001.fastq.gz' 
+ILLUMINA_SAMPLE5='200423_20-04411_A_S1_L000_R1_001.fastq.gz'
+ILLUMINA_SAMPLE6='200423_20-04411_A_S1_L000_R2_001.fastq.gz' 
+  
+## FASTQ - QUALITY CONTROL ##
+## PE 1
+fastqc -t 8 $ILLUMINA_SAMPLE1 $ILLUMINA_SAMPLE2 
+fastp --detect_adapter_for_pe --overrepresentation_analysis --correction --qualified_quality_phred 20 --cut_right --thread 8 --html pair1.fastp.html --json pair1.fastp.json -i $ILLUMINA_SAMPLE1 -I $ILLUMINA_SAMPLE2 -o pair1.R1.clean.fastq.gz -O pair1.R2.clean.fastq.gz    
+fastqc -t 8 pair1.R{1,2}.clean.fastq.gz  
+ 
+## PE 2 
+fastqc -t 8 $ILLUMINA_SAMPLE3 $ILLUMINA_SAMPLE4  
+fastp --detect_adapter_for_pe --overrepresentation_analysis --correction --qualified_quality_phred 20 --cut_right --thread 8 --html pair2.fastp.html --json pair2.fastp.json -i $ILLUMINA_SAMPLE3 -I $ILLUMINA_SAMPLE4 -o pair2.R1.clean.fastq.gz -O pair2.R2.clean.fastq.gz   
+fastqc -t 8 pair2.R{1,2}.clean.fastq.gz    
+
+## PE 3 
+fastqc -t 8 $ILLUMINA_SAMPLE5 $ILLUMINA_SAMPLE6  
+fastp --detect_adapter_for_pe --overrepresentation_analysis --correction --qualified_quality_phred 20 --cut_right --thread 8 --html pair3.fastp.html --json pair3.fastp.json -i $ILLUMINA_SAMPLE5 -I $ILLUMINA_SAMPLE6 -o pair3.R1.clean.fastq.gz -O pair3.R2.clean.fastq.gz
+fastqc -t 8 pair3.R{1,2}.clean.fastq.gz  
+   
+## MAPPING & VISUALIZATION ## 
+
+## NCBI Entrez Direct UNIX E-utilities 
+## download reference genome, and index
+sh -c "$(wget -q https://ftp.ncbi.nlm.nih.gov/entrez/entrezdirect/install-edirect.sh -O -)"
+export PATH=${HOME}/edirect:${PATH}
+esearch -db nucleotide -query "NC_045512.2" | efetch -format fasta > reference.fasta  
+
+## Creating SAM files - mapping
+minimap2 -x sr -t 8 -a -o minimap2-illumina.sam reference.fasta pair1.R1.clean.fastq.gz pair1.R2.clean.fastq.gz  
+minimap2 -x sr -t 8 -a -o minimap2-illumina.sam reference.fasta pair2.R1.clean.fastq.gz pair2.R2.clean.fastq.gz 
+minimap2 -x sr -t 8 -a -o minimap2-illumina.sam reference.fasta pair3.R1.clean.fastq.gz pair3.R2.clean.fastq.gz  
+
+## For each pair, convert SAM to BAM 
+## Processing mapping reads
+for SAM in minimap2-illumina.sam; do
+    BN=$(basename $SAM.sam); 
+    samtools view -bS $SAM > $BN.bam; 
+    samtools sort $BN.bam > $BN.sorted.bam; 
+    samtools index $BN.sorted.bam;  
+    done  
+     
+## Visualizing mapped reads
+igv&  
+   
+### PRIMER CLIPPING ##
+## TRYING FOR BEDPE file
+minimap2 -x sr -t 8 -a -o pair1/pair1.sam reference.fasta pair1/$ILLUMINA_SAMPLE1 pair1/$ILLUMINA_SAMPLE2 
+minimap2 -x sr -t 8 -a -o pair2/pair2.sam reference.fasta pair2/$ILLUMINA_SAMPLE3 pair2/$ILLUMINA_SAMPLE4 
+minimap2 -x sr -t 8 -a -o pair3/pair3.sam reference.fasta pair3/$ILLUMINA_SAMPLE5 pair3/$ILLUMINA_SAMPLE6 
+ 
+samtools view -bS pair1.sam > pair1.bam 
+samtools view -bS pair2.sam > pair2.bam 
+samtools view -bS pair3.sam > pair3.bam
+ 
+mamba install BEDTools 
+ 
+bedtools bedtobam -i SARSCoV2.amplicon.bed -g reference.fasta.fai > SARSCoV2.amplicon.bam 
+bedtools bedtobam -i SARSCoV2.ampInsert.bed -g reference.fasta.fai > SARSCoV2.ampInsert.bam
+bedtools bedtobam -i SARSCoV2.ampInsert.shift1.bed -g reference.fasta.fai > SARSCoV2.ampInsert.shift1.bam 
+ 
+bedtools bamtobed -bedpe -mate1 -i SARSCoV2.amplicon.bam > SARSCoV2.amplicon.bedpe
+bedtools bamtobed -bedpe -mate1 -i SARSCoV2.ampInsert.bam > SARSCoV2.ampInsert.bedpe
+bedtools bamtobed -bedpe -mate1 -i SARSCoV2.ampInsert.shift1.bam > SARSCoV2.ampInsert.shift1.bedpe
+ 
+## Works 
+wget --no-check-certificate https://osf.io/4nztj/download -O bed_files/cleanplex.amplicons.bedpe  
+## Checking the difference of locations
+bedtools pairtobed -a bed_files/cleanplex.amplicons.bedpe -b bed_files/SARSCoV2.amplicon.bed -type neither 
+bedtools pairtobed -a bed_files/cleanplex.amplicons.bedpe -b bed_files/SARSCoV2.ampInsert.bed -type neither 
+bedtools pairtobed -a bed_files/cleanplex.amplicons.bedpe -b bed_files/SARSCoV2.ampInsert.shift1.bed -type neither 
+ 
+## FASTA header & IDs check matching
+head reference.fasta 
+head bed_files/cleanplex.amplicons.bedpe 
+## Finally, we have a BEDPE file
+sed 's/NM_003194/NC_045512.2/g' bed_files/cleanplex.amplicons.bedpe > bed_files/SARSCoV2.amplicons.bedpe 
+## For all 3 pair end datasets 
+bamclipper.sh -b minimap2-illumina.sorted.bam -p SARSCoV2.amplicons.bedpe -n 8 
+ 
+## VARIANT CALLING ##  
+## For PE1,2,3
+freebayes -f reference.fasta --min-alternate-count 10 --min-alternate-fraction 0.1 --min-coverage 20 --pooled-continuous --haplotype-length -1 minimap2-illumina.sorted.primerclipped.bam > freebayes-illumina.vcf   
+ 
+## PE3 didn't had any variants so a quorum effort was done that gave a lot of unknown, unphased samples
+freebayes -f reference.fasta -b minimap2-illumina.sorted.primerclipped.bam --report-monomorphic --pooled-continuous > freebayes-illumina.vcf
+ 
+## Quality checks for low-coverage & masking  
+
+conda install gnuplot 
+conda install vcftools 
+conda install vcflib 
+  
+## A small R Script using 'vcfR' package was used for  
+## quality control, visualization, and writing out  
+## the new vcf data   
+## After the masking, Basically: 
+## *../pair{1,2,3}/freebayes-illumina.vcf => *../pair{1,2,3}/masked-strict.vcf
+
+## VCF file statistics 
+
+## mean depth per individual
+vcftools --gzvcf masked-strict.vcf.gz --depth --out filterVCF/stats   
+
+## mean depth per site
+vcftools --gzvcf masked-strict.vcf.gz --site-mean-depth --out filterVCF/stats   
+
+## proportion of missing data per site 
+vcftools --gzvcf masked-strict.vcf.gz --missing-site --out filterVCF/stats   
+
+## site quality
+vcftools --gzvcf masked-strict.vcf.gz --site-quality --out filterVCF/stats 
+
+vcf-compare pair1/masked.vcf.gz pair2/masked.vcf.gz pair3/masked.vcf.gz 
+
+##  Venn diagrams -  numbers of positions contained in one but not the other files; two but not the other files, etc. 
+vcf-compare pair1/masked.vcf.gz pair2/masked.vcf.gz pair3/masked.vcf.gz | grep ^VN | cut -f 2- > filterVCF/fullstattree.txt 
+
+## returns a tree with basic stats e.g. SNPs, INDELS etc.
+vcf-stats pair1/masked.vcf.gz >> filterVCF/fullstattree.txt 
+
+## Append TSTV ratio to stats file - all 
+cat pair1/masked.vcf | vcf-tstv >> pair1/filterVCF/fullstatstree.txt
+  
+## CONSENSUS GENERATION ##    
+ 
+#PE1
+bcftools view masked-strict.vcf -Oz -o masked-strict.vcf.gz 
+bcftools index masked-strict.vcf.gz 
+bcftools consensus -f reference.fasta masked-strict.vcf.gz -o consensus-illumina-qc-strict.fasta 
+sed -i 's/NC_045512.2/Consensus-Illumina-PE1 | 200408,A,20-04246,CleanPlex SARS-CoV-2,IQ/g' consensus-illumina-qc-strict.fasta  
+ 
+#PE2
+bcftools view masked-strict.vcf -Oz -o masked-strict.vcf.gz 
+bcftools index masked-strict.vcf.gz 
+bcftools consensus -f reference.fasta masked-strict.vcf.gz -o consensus-illumina-qc-strict.fasta 
+sed -i 's/NC_045512.2/Consensus-Illumina-PE2 | 200422,A,20-04444,Nextera Flex,IQ/g' consensus-illumina-qc-strict.fasta  
+ 
+#PE3
+bcftools view masked-strict.vcf -Oz -o masked-strict.vcf.gz 
+bcftools index masked-strict.vcf.gz 
+bcftools consensus -f reference.fasta masked-strict.vcf.gz -o consensus-illumina-qc-strict.fasta 
+sed -i 's/NC_045512.2/Consensus-Illumina-PE3 | 200423,A,20-04411,Nextera_XT,NX/g' consensus-illumina-qc-strict.fasta  
+ 
+## After putting all three consensus from PE datsets into one fasta file 
+  
+## LINEAGE ANNOTATION & CONSENSUS QUALITY CONTROL ## 
+
+pangolin -t 8 consensus-seqs.fasta 
+president -r reference.fasta -q consensus-seqs.fasta -t 8 -a -p output/ -f consensus_ 
+ 
+## MSA & PHYLOGENY 
+ 
+mamba install  mafft iqtree jalview 
+
+cat *.fasta > all.fasta 
+mafft --thread 4 all.fasta > alignment.fasta
+jalview -open alignment.fasta 
+iqtree -nt 4 -s alignment.fasta --prefix phylo  
+ 
+
+## Post-Analysis ## 
+    
+## Machine details ## 
+ 
+OS 	   : Fedora Linux 38 
+Kernel	   : Linux 6.4.15-200.fc38.x86_64  
+Processor : Intel i5-8250U (8 slots), with CUDA support  
+Graphics  : UHD 620 (KBL GT2) 
+Memory    : 8 GB 
+ 
+## I uploaded the whole project folder to google  
+## drive, for transferring data to Mac and used  
+## Google Takeout to download the folder in .tgz format 
+  
+## While making the zipped file, google adds the  
+## information about files, and directories, so  
+## we need to delete them 
+  
+## Also, using the QualMap tool, it creates meta-data  
+## and replicated files so we need to delete them as well 
+ 
+## The following steps is to  				   ##
+## clean the unnecessary clutter				   ## 
+## Commands to modify the downloaded project folder 	   ## 
+   
+ rm -rf .git
+ find . -name "*.json" -type -delete
+ find . -name "*pinned*" -delete
+ find . -name "*pin.*" -delete
+ find . -name "*pinn.*" -delete
+ find . -name "*pinne.*" -delete
+ find . -name "*-at-*" -print
+ find . -name "*-at-*" -delete 
+ 
+## Now, the folder is as it should be with  
+## necessary files and folders
+
