@@ -1,5 +1,5 @@
 # SARS-CoV-2 genome assembly from Illumina reads 
-Course: SARS-2 Bioinformatics & Data Science <br>
+Course: [SARS-2 Bioinformatics & Data Science](https://github.com/rki-mf1/2023-SC2-Data-Science) <br>
 Intructors: Max von Kleist, Martin Hölzer <br>
 Institution: Freie Universität Berlin, Robert-Koch Institute <br> 
 
