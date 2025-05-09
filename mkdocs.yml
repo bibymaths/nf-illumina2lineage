@@ -6,7 +6,7 @@ use_directory_urls: false
 repo_url: https://github.com/bibymaths/nf-illumina2lineage
 
 theme:
-  name: material
+  name: readthedocs
   language: en
   features:
     - navigation.tabs
@@ -39,3 +39,9 @@ markdown_extensions:
 
 plugins:
   - search
+
+watch:
+  - docs
+
+copyright: >
+  Copyright &copy; 2025 <a href="https://bibymaths.github.io">Abhinav Mishra</a>.
