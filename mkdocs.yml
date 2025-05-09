@@ -1,0 +1,40 @@
+site_name: SARS-CoV-2 Assembly Pipeline
+site_description: 'Documentation for the SARS-CoV-2 genome assembly and analysis pipeline using Nextflow'
+site_author: 'Abhinav Mishra'
+repo_url: 'https://github.com/your-username/nf-illumina2lineage'
+theme:
+  name: material
+  language: en
+  features:
+    - navigation.tabs
+    - content.code.copy
+
+nav:
+  - Home: index.md
+  - Quickstart: quickstart.md
+  - Pipeline Overview:
+      - Workflow Diagram: workflow.md
+      - Process Details: processes.md
+  - Configuration:
+      - Parameters: parameters.md
+      - Docker/Singularity: containers.md
+  - Results:
+      - Output Structure: outputs.md
+      - Lineage & QC: lineage_qc.md
+  - References: references.md
+  - About: about.md
+
+markdown_extensions:
+  - toc:
+      permalink: true
+  - admonition
+  - codehilite
+  - pymdownx.superfences
+  - pymdownx.tabbed
+  - pymdownx.details
+  - pymdownx.inlinehilite
+
+plugins:
+  - search
+  - mkdocs-material
+  - mkdocstrings
