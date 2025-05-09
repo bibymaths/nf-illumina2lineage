@@ -1,4 +1,6 @@
 # SARS-CoV-2 Genome Assembly from Illumina Reads
+ 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15376065.svg)](https://doi.org/10.5281/zenodo.15376065)
 
 Welcome to the documentation for the `nf-illumina2lineage` pipeline.
 
