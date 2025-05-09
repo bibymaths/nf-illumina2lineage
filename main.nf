@@ -4,16 +4,20 @@ params.reads     = "*.fastq.gz"
 params.reference = "data/reference.fasta"
 
 workflow {
-    // 1) Download data and reference
-    downloadData()
-    ref_ch = referenceGenome()
+    // fetch raw reads and reference
+    raw_reads_ch = downloadData()
+    ref_ch       = referenceGenome()
 
-    // 2) Pair FASTQs *after* they exist
-    reads_ch = Channel
-        .fromFilePairs( 'data/*_R{1,2}_001.fastq.gz', flat: true )
-        .map { sample, files -> tuple(sample, files) }
+    // only *after* downloadData has produced files do we pair them
+    reads_ch = raw_reads_ch
+        .map { file ->
+            // derive sample name by stripping the _R1_001 or _R2_001 suffix
+            def id = file.baseName.replaceAll(/_R[12]_001$/, '')
+            tuple(id, file)
+        }
+        .groupTuple()
 
-    // 3) QC — now reads_ch is non‐empty
+    // 3) QC
     qc_out = qc(reads_ch)
 
     // 4) Downstream steps
@@ -31,7 +35,7 @@ workflow {
 // Download raw data
 process downloadData {
     output:
-    path "data/*.fastq.gz"
+    path "data/*.fastq.gz", emit: raw_reads
 
     // Require aria2c and pigz to be installed in your env
     script:

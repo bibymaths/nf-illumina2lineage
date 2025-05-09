@@ -3,7 +3,7 @@ set -euo pipefail
 
 # 1) Create & activate Conda env (if not already)
 ENV_NAME="nf-illumina2reads"
-ENV_FILE="envs/environment.yaml"
+ENV_FILE="environment.yaml"
 
 echo "Checking Conda environment..."
 if ! conda info --envs | grep -q "^${ENV_NAME}"; then
@@ -17,7 +17,7 @@ conda activate "${ENV_NAME}"
 
 # 2) Install & configure Java via SDKMAN
 if [ ! -d "$HOME/.sdkman" ]; then
-  echo "💡 Installing SDKMAN…"
+  echo "Installing SDKMAN…"
   curl -s "https://get.sdkman.io" | bash
 fi
 # shellcheck disable=SC1090
