@@ -1,7 +1,7 @@
 site_name: SARS-CoV-2 Assembly Pipeline
 site_description: 'Documentation for the SARS-CoV-2 genome assembly and analysis pipeline using Nextflow'
 site_author: 'Abhinav Mishra'
-repo_url: 'https://github.com/your-username/nf-illumina2lineage'
+repo_url: 'https://github.com/bibymaths/nf-illumina2lineage'
 theme:
   name: material
   language: en
