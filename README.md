@@ -89,10 +89,10 @@ For questions or issues, please contact:
 - **Abhinav Mishra**
 - Email: mishraabhinav36@gmail.com
 
-![alt_text](methodSARS.svg) 
+![alt_text](files/methodSARS.svg) 
 
 ### Data & File description  
-![alt_text](filedesc.png) 
+![alt_text](files/filedesc.png) 
 
 ## References 
 
