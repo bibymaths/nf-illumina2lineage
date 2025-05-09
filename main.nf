@@ -4,55 +4,63 @@ params.reads     = "*.fastq.gz"
 params.reference = "data/reference.fasta"
 
 workflow {
-    // Display banner
-    // banner()
+    // 1) Download data and reference
+    downloadData()
+    ref_ch = referenceGenome()
 
-    // Download inputs and reference
-    reads_ch = downloadData()
-    ref_ch   = referenceGenome()
+    // 2) Pair FASTQs *after* they exist
+    reads_ch = Channel
+        .fromFilePairs( 'data/*_R{1,2}_001.fastq.gz', flat: true )
+        .map { sample, files -> tuple(sample, files) }
 
-    // Quality control
-    qc_out      = qc(reads_ch)
+    // 3) QC — now reads_ch is non‐empty
+    qc_out = qc(reads_ch)
 
-    // Mapping & primer clipping
-    reads_ch = Channel.fromFilePairs(params.reads, flat: true)
-
-    qc_out      = qc(reads_ch)  // returns channel with cleaned files
+    // 4) Downstream steps
     mapping_ch  = mapping(qc_out.cleaned_r1, ref_ch)
     primer_ch   = primerClipping(mapping_ch)
-
-    // Variant calling & masking
     vcf_ch      = variantCalling(primer_ch, ref_ch)
     qc_masked   = vcfMaskingQC(vcf_ch, ref_ch)
-
-    // Consensus, lineage and phylogeny
     consensus_ch = consensusGeneration(vcf_ch, ref_ch)
     pangolinLineage(consensus_ch)
     consensusQC(consensus_ch, ref_ch)
     phylogeny(consensus_ch)
 }
 
+
 // Download raw data
 process downloadData {
     output:
     path "data/*.fastq.gz"
 
+    // Require aria2c and pigz to be installed in your env
     script:
     """
     #!/usr/bin/env bash
+    set -e
+
     mkdir -p data
 
-    # Download and extract
-    wget -O data/illumina-amplicon-capture-wgs.tar.gz https://osf.io/qu3bh/download
-    tar -xf data/illumina-amplicon-capture-wgs.tar.gz -C data
+    # 1) Download with aria2c (16 connections)
+    aria2c \\
+      -x16 \\
+      -s16 \\
+      -d data \\
+      -o illumina-amplicon-capture-wgs.tar.gz \\
+      https://osf.io/qu3bh/download
 
-    # Move all fastq.gz files to top-level data/
+    # 2) Extract in parallel with pigz
+    #    Use pigz to decompress .gz input and tar to extract
+    pigz -dc data/illumina-amplicon-capture-wgs.tar.gz | tar -x -C data
+
+    # 3) Move FASTQs to top-level data/
     find data/ -name "*.fastq.gz" -exec mv {} data/ \\;
 
-    # Clean up unnecessary extracted folders (optional)
+    # 4) Clean up
     rm -rf data/illumina-amplicon-capture-wgs* data/__MACOSX || true
     """
 }
+
 
 // Fetch reference genome
 process referenceGenome {

@@ -22,15 +22,6 @@ It is based on best-practice tools and developed as part of the *SARS-2 Bioinfor
 ```bash
 git clone https://github.com/bibymaths/nf-illumina2lineage.git
 cd nf-illumina2lineage
-
-# Setup environment
-wget "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh"
-bash Mambaforge-Linux-x86_64.sh
-mamba env create -p ./envs/projectSARS --file environment.yaml
-mamba activate ./envs/projectSARS
-
-# Run the pipeline
-nextflow run main.nf -profile docker
 ````
 
 > 💡 See [docs/quickstart.md](docs/quickstart.md) for full details.
