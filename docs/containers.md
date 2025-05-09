@@ -1,10 +1,8 @@
 # Container Support
 
-This pipeline supports containerized execution using **Docker** and **Singularity**, which ensures reproducibility and simplifies environment setup.
-
----
-
-## Docker
+This pipeline supports containerized execution using **Docker**, which ensures reproducibility and simplifies environment setup.
+ 
+## Using Docker
 
 To run the pipeline with Docker:
 ```bash
@@ -22,22 +20,6 @@ docker build -t nf-illumina2lineage .
 Use your image with:
 ```bash
 nextflow run main.nf -with-docker nf-illumina2lineage
-```
-
----
-
-## Singularity
-
-To run with Singularity (useful on HPCs):
-```bash
-nextflow run main.nf -profile singularity
-```
-
-Make sure `singularity` is installed (or `apptainer` on newer systems).
-
-To convert the Docker image:
-```bash
-singularity build nf-illumina2lineage.sif docker-daemon://nf-illumina2lineage:latest
 ```
 
 ---
