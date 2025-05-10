@@ -4,21 +4,19 @@ params.reads     = "*.fastq.gz"
 params.reference = "data/reference.fasta"
 
 workflow {
-    // 1) Download data & reference
-    raw_reads_ch = downloadData()           // emits a List<File>
+    downloadData()
     ref_ch = referenceGenome()
+    // 1) Pair with fromFilePairs
+    reads_ch = Channel
+        .fromFilePairs( 'data/*_R{1,2}_001.fastq.gz', flat: true )
 
-    reads_ch = raw_reads_ch
-        .flatMap { it }                     // now each message is a single File
-        .map { file ->
-            // strip the _R1_ or _R2_ suffix for the sample ID
-            def id = file.baseName.replaceAll(/_R[12]_001$/, '')
-            tuple(id, file)
-        }
-        .groupTuple()                       // groups into (id, [R1,R2])
+    // 2) Destructure each tuple into (sample_id, r1_path, r2_path)
+    qc_input = reads_ch.map { sample, files ->
+        tuple( sample, files[0], files[1] )
+    }
 
-    // 4) QC
-    qc_out = qc(reads_ch)
+    // 3) Now feed that into qc
+    qc_out = qc(qc_input)
 
     // 5) Downstream
     mapping_ch   = mapping(qc_out.cleaned_r1, ref_ch)
@@ -36,7 +34,7 @@ workflow {
 // Download raw data
 process downloadData {
     output:
-    path "data/*.fastq.gz", emit: raw_reads
+    path "data/*.fastq.gz"
 
     // Require aria2c and pigz to be installed in your env
     script:
@@ -87,39 +85,52 @@ process referenceGenome {
     '''
 }
 
-
-// Quality control and trimming
 process qc {
-    tag "$pair_id"
+    tag "$sample_id"
 
     input:
-    tuple val(pair_id), path(reads)
+    tuple val(sample_id), path(r1), path(r2)
 
     output:
-    path "${pair_id}.R1.clean.fastq.gz", emit: cleaned_r1
-    path "${pair_id}.R2.clean.fastq.gz", emit: cleaned_r2
-    path "${pair_id}.fastp.html",        emit: qc_html
-    path "${pair_id}.fastp.json",        emit: qc_json
+    path "datafiles/${sample_id}.R1.clean.fastq.gz", emit: cleaned_r1
+    path "datafiles/${sample_id}.R2.clean.fastq.gz", emit: cleaned_r2
+    path "datafiles/${sample_id}.fastp.html",        emit: qc_html
+    path "datafiles/${sample_id}.fastp.json",        emit: qc_json
 
-    script:
-    """
-    #!/usr/bin/env bash
+    shell:
+    '''
+    set -euo pipefail
     mkdir -p datafiles
 
-    # Copy the two reads into a temp dir named for the pair
-    tmpdir=\$(mktemp -d)
-    cp ${reads[0]} \$tmpdir/\$(basename ${reads[0]})
-    cp ${reads[1]} \$tmpdir/\$(basename ${reads[1]})
+    echo "QC for ${sample_id}:"
+    echo "  R1 = $r1"
+    echo "  R2 = $r2"
 
-    # Run our qc helper
-    bash ${workflow.projectDir}/scripts/qc.sh \$tmpdir datafiles \$task.cpus
+    # Raw QC
+    fastqc -t ${task.cpus} "$r1" "$r2" -o datafiles
 
-    # Move outputs for this sample back to cwd
-    mv datafiles/pair${pair_id:4}.R1.clean.fastq.gz    .
-    mv datafiles/pair${pair_id:4}.R2.clean.fastq.gz    .
-    mv datafiles/pair${pair_id:4}.fastp.html          .
-    mv datafiles/pair${pair_id:4}.fastp.json          .
-    """
+    # Trimming + QC
+    fastp --detect_adapter_for_pe \
+          --overrepresentation_analysis \
+          --correction \
+          --qualified_quality_phred 20 \
+          --cut_right \
+          --thread ${task.cpus} \
+          --html  datafiles/${sample_id}.fastp.html \
+          --json  datafiles/${sample_id}.fastp.json \
+          -i "$r1" -I "$r2" \
+          -o datafiles/${sample_id}.R1.clean.fastq.gz \
+          -O datafiles/${sample_id}.R2.clean.fastq.gz
+
+    # QC on cleaned
+    fastqc -t ${task.cpus} \
+           datafiles/${sample_id}.R1.clean.fastq.gz \
+           datafiles/${sample_id}.R2.clean.fastq.gz \
+           -o datafiles
+
+    # Summarize
+    multiqc datafiles -o datafiles
+    '''
 }
 
 // Align reads to reference
