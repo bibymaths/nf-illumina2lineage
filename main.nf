@@ -5,7 +5,7 @@ params.reference = "data/reference.fasta"
 
 workflow {
     // 1) Download data & reference
-    downloadData()
+    raw_reads_ch = downloadData()           // emits a List<File>
     ref_ch = referenceGenome()
 
     reads_ch = raw_reads_ch
