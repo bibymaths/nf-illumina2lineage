@@ -112,7 +112,7 @@ process qc {
     cp ${reads[1]} \$tmpdir/\$(basename ${reads[1]})
 
     # Run our qc helper
-    bash scripts/qc.sh \$tmpdir datafiles \$task.cpus
+    bash ${workflow.projectDir}/scripts/qc.sh \$tmpdir datafiles \$task.cpus
 
     # Move outputs for this sample back to cwd
     mv datafiles/pair${pair_id:4}.R1.clean.fastq.gz    .
