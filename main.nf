@@ -59,6 +59,11 @@ workflow {
     phylogeny(consensus_ch)
 }
 
+
+// … your existing processes (downloadData, referenceGenome, qc, mapping, …) follow unchanged.
+
+
+
 /***************************************************************************
  * Download raw FASTQs into data/*.fastq.gz
  ***************************************************************************/
