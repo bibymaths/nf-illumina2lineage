@@ -1,79 +1,34 @@
 #!/usr/bin/env nextflow
+
+// Enable DSL2
 nextflow.enable.dsl=2
 
 
 workflow {
 
-    //
-    // 1) Download creates the FASTQs at runtime
-    //    It emits _one_ List<File> containing all the .fastq.gz files.
-    //
     raw_list_ch = downloadData()
 
-    //
-    // 2) Flatten that List<File> into individual File messages
-    //
     raw_reads_ch = raw_list_ch
-        .flatMap { it }    // now each message is a single File
+        .flatMap { it }
 
-    //
-    // 3) Fetch the reference (independent)
-    //
     ref_ch = referenceGenome()
 
-    //
-    // 4) Take each File, strip off its _R1_ or _R2_ suffix to get the sample ID,
-    //    then group into two-element lists `[R1_file, R2_file]`.
-    //
-    raw_pairs = raw_reads_ch
-        .map { file ->
-            // e.g. "sample_X_L001_R1_001.fastq.gz" → "sample_X_L001"
-            def id = file.name.replaceFirst(/_R[12]_001\.fastq\.gz$/, '')
-            tuple( id, file )
-        }
-        .groupTuple()   // emits exactly ( id, [r1_file, r2_file] )
-   //
-   // 4) Turn (id, [r1,r2]) → ( id, r1, r2 )
-   //
-    reads_ch = raw_pairs
-      .map { sample_id, files ->
-           // locate R1 versus R2
-           def r1 = files.find{ it.name.contains('_R1_') }
-           def r2 = files.find{ it.name.contains('_R2_') }
-           tuple( sample_id, r1, r2 )
-       }
-    //
-    // 5) QC now sees a real (id, r1, r2) tuple and will run.
-    //
-    qc_out = qc(reads_ch)
+    reads_ch = raw_reads_ch
+      .map { file ->
+        def id = file.name.replaceFirst(/_R[12]_001\.fastq\.gz$/, '')
+        tuple(id, file)
+      }
+      .groupTuple()
+      .map { sid, files ->
+        def r1 = files.find{ it.name.contains('_R1_') }
+        def r2 = files.find{ it.name.contains('_R2_') }
+        tuple(sid, r1, r2)
+      }
 
-    // 1. Map R1 to (sample_id, R1 file)
-    r1_ch = qc_out.cleaned_r1.map { file ->
-        def sid = file.getBaseName().replaceFirst(/\\.R1\\.clean$/, '')
-        tuple(sid, file)
-    }
+    def ( qc_reads, qc_html_ch, qc_json_ch ) = qc(reads_ch)
 
-    // 2. Map R2 to (sample_id, R2 file)
-    r2_ch = qc_out.cleaned_r2.map { file ->
-        def sid = file.getBaseName().replaceFirst(/\\.R2\\.clean$/, '')
-        tuple(sid, file)
-    }
-
-    // ✅ 3. Use `.join()` (not `.combine()`) inside workflow
-    paired_ch = r1_ch.join(r2_ch)
-        .map { a, b ->
-            assert a[0] == b[0]
-            tuple(a[0], a[1], b[1])
-        }
-
-    // 4. Add reference to each tuple
-    mapping_input_ch = paired_ch.map { sid, r1, r2 -> tuple(sid, r1, r2, ref_ch) }
-
-    // 5. Run mapping
-    mapping_ch = mapping(mapping_input_ch)
-
-
-    primer_ch    = primerClipping(mapping_ch.bam_files)
+    mapping_ch = mapping(qc_reads, ref_ch)
+    primer_ch    = primerClipping(mapping_ch)
     vcf_ch       = variantCalling(primer_ch, ref_ch)
     qc_masked    = vcfMaskingQC(vcf_ch, ref_ch)
     consensus_ch = consensusGeneration(vcf_ch, ref_ch)
@@ -82,36 +37,31 @@ workflow {
     phylogeny(consensus_ch)
 }
 
-/***************************************************************************
- * Download raw FASTQs into data/*.fastq.gz
- ***************************************************************************/
 process downloadData {
     publishDir "${params.intermediate}/${task.process}", mode: 'copy'
 
     output:
-      path "data/*.fastq.gz", emit: raw_list_ch
+      path params.reads, emit: raw_list_ch
 
     script:
     """
     set -euo pipefail
-    mkdir -p data
 
-    # parallel fetch + extract
-    aria2c -x16 -s16 -d data -o illumina-amplicon-capture-wgs.tar.gz \\
+    # Download into current directory
+    aria2c -x16 -s16 -d . -o illumina-amplicon-capture-wgs.tar.gz \\
       https://osf.io/qu3bh/download
-    pigz -dc data/illumina-amplicon-capture-wgs.tar.gz | tar -x -C data
 
-    # flatten any nested dirs
-    find data/ -name "*.fastq.gz" -exec mv {} data/ \\;
-    rm -rf data/illumina-amplicon-capture-wgs* data/__MACOSX || true
+    # Unpack into cwd
+    pigz -dc illumina-amplicon-capture-wgs.tar.gz | tar -x -C .
+
+    # Move any fastq.gz out of nested dirs into cwd
+    find . -mindepth 2 -type f -name "*.fastq.gz" -exec mv {} . \\;
+
+    # Clean up
+    rm -rf illumina-amplicon-capture-wgs.tar.gz __MACOSX
     """
 }
 
-
-
-/***************************************************************************
- * Fetch reference genome
- ***************************************************************************/
 process referenceGenome {
 
     publishDir "${params.intermediate}/${task.process}", mode: 'copy'
@@ -133,10 +83,6 @@ process referenceGenome {
 }
 
 
-
-/***************************************************************************
- * QC + trimming
- ***************************************************************************/
 process qc {
     tag "$sample_id"
 
@@ -146,69 +92,61 @@ process qc {
       tuple val(sample_id), path(r1), path(r2)
 
     output:
-      path "datafiles/${sample_id}.R1.clean.fastq.gz", emit: cleaned_r1
-      path "datafiles/${sample_id}.R2.clean.fastq.gz", emit: cleaned_r2
-      path "datafiles/${sample_id}.fastp.html",        emit: qc_html
-      path "datafiles/${sample_id}.fastp.json",        emit: qc_json
+      tuple val(sample_id), path("${sample_id}.R1.clean.fastq.gz"), path("${sample_id}.R2.clean.fastq.gz"), emit: qc_reads
+      path "${sample_id}.fastp.html", emit: qc_html
+      path "${sample_id}.fastp.json", emit: qc_json
 
     shell:
     """
     set -euo pipefail
-    mkdir -p datafiles
 
     # raw QC
-    fastqc -t ${task.cpus} "$r1" "$r2" -o datafiles
+    fastqc -t ${task.cpus} "$r1" "$r2"
 
     # trimming & per-sample QC
-    fastp --detect_adapter_for_pe \
-          --overrepresentation_analysis \
-          --correction \
-          --qualified_quality_phred 20 \
-          --cut_right \
-          --thread ${task.cpus} \
-          --html  datafiles/${sample_id}.fastp.html \
-          --json  datafiles/${sample_id}.fastp.json \
-          -i "$r1" -I "$r2" \
-          -o datafiles/${sample_id}.R1.clean.fastq.gz \
-          -O datafiles/${sample_id}.R2.clean.fastq.gz
+    fastp --detect_adapter_for_pe \\
+          --overrepresentation_analysis \\
+          --correction \\
+          --qualified_quality_phred 20 \\
+          --cut_right \\
+          --thread ${task.cpus} \\
+          --html  ${sample_id}.fastp.html \\
+          --json  ${sample_id}.fastp.json \\
+          -i "$r1" -I "$r2" \\
+          -o ${sample_id}.R1.clean.fastq.gz \\
+          -O ${sample_id}.R2.clean.fastq.gz
 
     # QC on cleaned
     fastqc -t ${task.cpus} \\
-           datafiles/${sample_id}.R1.clean.fastq.gz \\
-           datafiles/${sample_id}.R2.clean.fastq.gz \\
-           -o datafiles
+           ${sample_id}.R1.clean.fastq.gz \\
+           ${sample_id}.R2.clean.fastq.gz
 
     # aggregate
-    multiqc datafiles -o datafiles
+    multiqc . -o .
     """
 }
 
 
-
-/***************************************************************************
- * Mapping
- ***************************************************************************/
 process mapping {
     tag "$sample_id"
     publishDir "${params.intermediate}/${task.process}", mode: 'copy'
 
     input:
-      tuple val(sample_id), path(r1), path(r2), path(ref)
+      tuple val(sample_id), path(r1), path(r2)
+      path(ref)
 
     output:
       tuple val(sample_id), path("${sample_id}.sorted.bam"), emit: bam_files
 
     script:
     """
-    minimap2 -x sr -t ${task.cpus} -a -o ${sample_id}.sam \$ref \$r1 \$r2
+    minimap2 -x sr -t ${task.cpus} -a -o ${sample_id}.sam ${ref} ${r1} ${r2}
     samtools view -bS ${sample_id}.sam | samtools sort -o ${sample_id}.sorted.bam
     samtools index ${sample_id}.sorted.bam
     """
 }
 
-/***************************************************************************
- * Primer clipping
- ***************************************************************************/
+
 process primerClipping {
     tag "$sample_id"
     publishDir "${params.intermediate}/${task.process}", mode: 'copy'
@@ -229,9 +167,7 @@ process primerClipping {
     """
 }
 
-/***************************************************************************
- * Variant calling
- ***************************************************************************/
+
 process variantCalling {
     publishDir "${params.intermediate}/${task.process}", mode: 'copy'
     input:
@@ -256,10 +192,6 @@ process variantCalling {
 }
 
 
-
-/***************************************************************************
- * Masking QC
- ***************************************************************************/
 process vcfMaskingQC {
     publishDir "${params.intermediate}/${task.process}", mode: 'copy'
     input:
@@ -284,10 +216,6 @@ process vcfMaskingQC {
 }
 
 
-
-/***************************************************************************
- * Consensus generation
- ***************************************************************************/
 process consensusGeneration {
 
     publishDir "${params.intermediate}/${task.process}", mode: 'copy'
@@ -316,10 +244,6 @@ process consensusGeneration {
 }
 
 
-
-/***************************************************************************
- * Lineage assignment
- ***************************************************************************/
 process pangolinLineage {
     publishDir "${params.intermediate}/${task.process}", mode: 'copy'
     input:
@@ -337,11 +261,6 @@ process pangolinLineage {
     """
 }
 
-
-
-/***************************************************************************
- * Consensus QC
- ***************************************************************************/
 process consensusQC {
     publishDir "${params.intermediate}/${task.process}", mode: 'copy'
     input:
@@ -360,10 +279,6 @@ process consensusQC {
 }
 
 
-
-/***************************************************************************
- * Phylogenetic analysis
- ***************************************************************************/
 process phylogeny {
     publishDir "${params.intermediate}/${task.process}", mode: 'copy'
     input:
