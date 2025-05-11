@@ -1,6 +1,7 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
 
+
 workflow {
 
     //
@@ -46,11 +47,33 @@ workflow {
     //
     qc_out = qc(reads_ch)
 
-    //
-    // 6) The rest of your pipeline:
-    //
-    mapping_ch   = mapping(qc_out.cleaned_r1, ref_ch)
-    primer_ch    = primerClipping(mapping_ch)
+    // 1. Map R1 to (sample_id, R1 file)
+    r1_ch = qc_out.cleaned_r1.map { file ->
+        def sid = file.getBaseName().replaceFirst(/\\.R1\\.clean$/, '')
+        tuple(sid, file)
+    }
+
+    // 2. Map R2 to (sample_id, R2 file)
+    r2_ch = qc_out.cleaned_r2.map { file ->
+        def sid = file.getBaseName().replaceFirst(/\\.R2\\.clean$/, '')
+        tuple(sid, file)
+    }
+
+    // ✅ 3. Use `.join()` (not `.combine()`) inside workflow
+    paired_ch = r1_ch.join(r2_ch)
+        .map { a, b ->
+            assert a[0] == b[0]
+            tuple(a[0], a[1], b[1])
+        }
+
+    // 4. Add reference to each tuple
+    mapping_input_ch = paired_ch.map { sid, r1, r2 -> tuple(sid, r1, r2, ref_ch) }
+
+    // 5. Run mapping
+    mapping_ch = mapping(mapping_input_ch)
+
+
+    primer_ch    = primerClipping(mapping_ch.bam_files)
     vcf_ch       = variantCalling(primer_ch, ref_ch)
     qc_masked    = vcfMaskingQC(vcf_ch, ref_ch)
     consensus_ch = consensusGeneration(vcf_ch, ref_ch)
@@ -59,15 +82,12 @@ workflow {
     phylogeny(consensus_ch)
 }
 
-
-// … your existing processes (downloadData, referenceGenome, qc, mapping, …) follow unchanged.
-
-
-
 /***************************************************************************
  * Download raw FASTQs into data/*.fastq.gz
  ***************************************************************************/
 process downloadData {
+    publishDir "${params.intermediate}/${task.process}", mode: 'copy'
+
     output:
       path "data/*.fastq.gz", emit: raw_list_ch
 
@@ -93,6 +113,9 @@ process downloadData {
  * Fetch reference genome
  ***************************************************************************/
 process referenceGenome {
+
+    publishDir "${params.intermediate}/${task.process}", mode: 'copy'
+
     output:
       path params.reference
 
@@ -116,6 +139,8 @@ process referenceGenome {
  ***************************************************************************/
 process qc {
     tag "$sample_id"
+
+    publishDir "${params.intermediate}/${task.process}", mode: 'copy'
 
     input:
       tuple val(sample_id), path(r1), path(r2)
@@ -164,56 +189,51 @@ process qc {
  * Mapping
  ***************************************************************************/
 process mapping {
+    tag "$sample_id"
+    publishDir "${params.intermediate}/${task.process}", mode: 'copy'
+
     input:
-      path cleaned_r1
-      path ref
+      tuple val(sample_id), path(r1), path(r2), path(ref)
 
     output:
-      path "datafiles/minimap2-illumina*.sorted.bam"
+      tuple val(sample_id), path("${sample_id}.sorted.bam"), emit: bam_files
 
     script:
     """
-    mkdir -p datafiles
-    i=1
-    for R1 in datafiles/*R1.clean.fastq.gz; do
-      R2=\${R1/R1.clean.fastq.gz/R2.clean.fastq.gz}
-      minimap2 -x sr -t ${task.cpus} -a -o minimap2-illumina\$i.sam $ref \$R1 \$R2
-      samtools view -bS minimap2-illumina\$i.sam | samtools sort -o datafiles/minimap2-illumina\$i.sorted.bam
-      samtools index    datafiles/minimap2-illumina\$i.sorted.bam
-      i=\$((i+1))
-    done
+    minimap2 -x sr -t ${task.cpus} -a -o ${sample_id}.sam \$ref \$r1 \$r2
+    samtools view -bS ${sample_id}.sam | samtools sort -o ${sample_id}.sorted.bam
+    samtools index ${sample_id}.sorted.bam
     """
 }
-
-
 
 /***************************************************************************
  * Primer clipping
  ***************************************************************************/
 process primerClipping {
+    tag "$sample_id"
+    publishDir "${params.intermediate}/${task.process}", mode: 'copy'
+
     input:
-      path bam_files
+      tuple val(sample_id), path(bam)
 
     output:
-      path "datafiles/*.primerclipped.bam"
+      path "${sample_id}.primerclipped.bam"
 
     script:
     """
-    mkdir -p datafiles
     wget -qO cleanplex.amplicons.bedpe https://osf.io/4nztj/download
     sed 's/NM_003194/NC_045512.2/g' cleanplex.amplicons.bedpe > SARSCoV2.amplicons.bedpe
-    for bam in datafiles/*.sorted.bam; do
-      bamclipper.sh -b \$bam -p SARSCoV2.amplicons.bedpe -n ${task.cpus}
-    done
+
+    bamclipper.sh -b \$bam -p SARSCoV2.amplicons.bedpe -n ${task.cpus} -u 10 -d 10 \\
+      -o ${sample_id}.primerclipped.bam
     """
 }
-
-
 
 /***************************************************************************
  * Variant calling
  ***************************************************************************/
 process variantCalling {
+    publishDir "${params.intermediate}/${task.process}", mode: 'copy'
     input:
       path primer_files
       path ref
@@ -241,6 +261,7 @@ process variantCalling {
  * Masking QC
  ***************************************************************************/
 process vcfMaskingQC {
+    publishDir "${params.intermediate}/${task.process}", mode: 'copy'
     input:
       path vcf_files
       path ref
@@ -268,6 +289,9 @@ process vcfMaskingQC {
  * Consensus generation
  ***************************************************************************/
 process consensusGeneration {
+
+    publishDir "${params.intermediate}/${task.process}", mode: 'copy'
+
     input:
       path vcf_files
       path ref
@@ -297,6 +321,7 @@ process consensusGeneration {
  * Lineage assignment
  ***************************************************************************/
 process pangolinLineage {
+    publishDir "${params.intermediate}/${task.process}", mode: 'copy'
     input:
       path consensus_files
 
@@ -318,6 +343,7 @@ process pangolinLineage {
  * Consensus QC
  ***************************************************************************/
 process consensusQC {
+    publishDir "${params.intermediate}/${task.process}", mode: 'copy'
     input:
       path consensus_files
       path ref
@@ -339,6 +365,7 @@ process consensusQC {
  * Phylogenetic analysis
  ***************************************************************************/
 process phylogeny {
+    publishDir "${params.intermediate}/${task.process}", mode: 'copy'
     input:
       path consensus_files
 
