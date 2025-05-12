@@ -1,6 +1,9 @@
 # nf-illumina2lineage   
 
-![GitHub last commit](https://img.shields.io/github/last-commit/bibymaths/nf-illumina2lineage)
+![GitHub last commit](https://img.shields.io/github/last-commit/bibymaths/nf-illumina2lineage) 
+ 
+[![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A50.27.6-brightgreen.svg)](https://www.nextflow.io/) 
+
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15376065.svg)](https://doi.org/10.5281/zenodo.15376065)
 
 A reproducible and modular **Nextflow pipeline** for **SARS-CoV-2 genome assembly and lineage analysis** from Illumina paired-end sequencing data.

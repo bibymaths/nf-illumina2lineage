@@ -55,3 +55,4 @@ Mol Ecol Resour, 17: 44-53. https://doi.org/10.1111/1755-0998.12549
 24. National Center for Biotechnology Information (NCBI)[Internet]. Bethesda (MD): National Library of
 Medicine (US), National Center for Biotechnology Information; [1988] – [cited 2023 Sep 29]. Available from:
 https://www.ncbi.nlm.nih.gov/
+25. P. Di Tommaso, et al. Nextflow enables reproducible computational workflows. Nature Biotechnology 35, 316–319 (2017) doi:[10.1038/nbt.3820](http://www.nature.com/nbt/journal/v35/n4/full/nbt.3820.html)
