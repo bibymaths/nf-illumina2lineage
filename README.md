@@ -71,8 +71,8 @@ This project is licensed under the **BSD 3-Clause License**. See [LICENSE](LICEN
 
 ## Author
 
-**Abhinav Mishra**
-[mishraabhinav36@gmail.com](mailto:mishraabhinav36@gmail.com)
+**Abhinav Mishra**  
+Email: [mishraabhinav@gmail.com](mailto:mishraabhinav@gmail.com)
 
 ## Acknowledgments
 
