@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Abhinav Mishra" /><link rel="canonical" href="https://bibymaths.github.io/nf-illumina2lineage/quickstart.html" />
+      <link rel="shortcut icon" href="img/favicon.ico" />
+    <title>Quickstart - SARS-CoV-2 Assembly Pipeline</title>
+    <link rel="stylesheet" href="css/theme.css" />
+    <link rel="stylesheet" href="css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Quickstart";
+        var mkdocs_page_input_path = "quickstart.md";
+        var mkdocs_page_url = "/nf-illumina2lineage/quickstart.html";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="index.html" class="icon icon-home"> SARS-CoV-2 Assembly Pipeline
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="index.html">Home</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Quickstart</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#step-1-clone-the-repository">Step 1: Clone the Repository</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#step-2-install-mamba-if-not-already-installed">Step 2: Install Mamba (if not already installed)</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#step-3-create-and-activate-the-environment">Step 3: Create and Activate the Environment</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#set-up-java-and-nexflow">Set up Java and Nexflow</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#step-4-run-the-pipeline-with-nextflow">Step 4: Run the Pipeline with Nextflow</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#input-data-requirements">Input Data Requirements</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#output-overview">Output Overview</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Pipeline Overview</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="workflow.html">Workflow Diagram</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="processes.html">Process Details</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Configuration</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="parameters.html">Parameters</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="containers.html">Docker/Singularity</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Results</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="outputs.html">Output Structure</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="lineage_qc.html">Lineage & QC</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="references.html">References</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="about.html">About</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SARS-CoV-2 Assembly Pipeline</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html" class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Quickstart</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/bibymaths/nf-illumina2lineage/edit/master/docs/quickstart.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="quickstart-guide">Quickstart Guide<a class="headerlink" href="#quickstart-guide" title="Permanent link">&para;</a></h1>
+<p>This guide will help you get the pipeline up and running as quickly as possible.</p>
+<h2 id="step-1-clone-the-repository">Step 1: Clone the Repository<a class="headerlink" href="#step-1-clone-the-repository" title="Permanent link">&para;</a></h2>
+<pre class="codehilite"><code class="language-bash">git clone https://github.com/bibymaths/nf-illumina2lineage.git
+cd nf-illumina2lineage
+</code></pre>
+
+<h2 id="step-2-install-mamba-if-not-already-installed">Step 2: Install Mamba (if not already installed)<a class="headerlink" href="#step-2-install-mamba-if-not-already-installed" title="Permanent link">&para;</a></h2>
+<pre class="codehilite"><code class="language-bash">wget &quot;https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh&quot;
+bash Mambaforge-Linux-x86_64.sh
+</code></pre>
+
+<h2 id="step-3-create-and-activate-the-environment">Step 3: Create and Activate the Environment<a class="headerlink" href="#step-3-create-and-activate-the-environment" title="Permanent link">&para;</a></h2>
+<pre class="codehilite"><code class="language-bash">conda update -y conda
+mamba env create -p --file environment.yaml
+mamba activate sars_genome_assembly
+</code></pre>
+
+<h2 id="set-up-java-and-nexflow">Set up Java and Nexflow<a class="headerlink" href="#set-up-java-and-nexflow" title="Permanent link">&para;</a></h2>
+<pre class="codehilite"><code class="language-bash">curl -s https://get.sdkman.io | bash 
+</code></pre>
+
+<p>In new terminal</p>
+<pre class="codehilite"><code class="language-bash">sdk install java 17.0.10-tem  
+java -version
+</code></pre>
+
+<pre class="codehilite"><code class="language-bash">curl -s https://get.nextflow.io | bash  
+chmod +x nextflow 
+mkdir -p $HOME/.local/bin/
+mv nextflow $HOME/.local/bin/ 
+nextflow info
+</code></pre>
+
+<p>Before you launch Nextflow, unset the Conda‐JDK variables and point to SDKMAN’s inside the conda environment. </p>
+<pre class="codehilite"><code class="language-bash">unset JAVA_CMD JAVA_HOME
+export JAVA_HOME=&quot;$HOME/.sdkman/candidates/java/current&quot;
+export JAVA_CMD=&quot;$JAVA_HOME/bin/java&quot; 
+</code></pre>
+
+<p>Nextflow requires Bash 3.2 (or later) and Java 17 (or later, up to 24) to be installed. 
+More information on <a href="https://www.nextflow.io/docs/latest/install.html">Nextflow installation</a>. </p>
+<h2 id="step-4-run-the-pipeline-with-nextflow">Step 4: Run the Pipeline with Nextflow<a class="headerlink" href="#step-4-run-the-pipeline-with-nextflow" title="Permanent link">&para;</a></h2>
+<pre class="codehilite"><code class="language-bash">nextflow run main.nf
+</code></pre>
+
+<p>To use a Docker profile:</p>
+<pre class="codehilite"><code class="language-bash">nextflow run main.nf -profile docker
+</code></pre>
+
+<h2 id="input-data-requirements">Input Data Requirements<a class="headerlink" href="#input-data-requirements" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Illumina paired-end FASTQ files</li>
+<li>SARS-CoV-2 reference genome (automatically downloaded by the pipeline)</li>
+</ul>
+<h2 id="output-overview">Output Overview<a class="headerlink" href="#output-overview" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Cleaned FASTQ files and QC reports</li>
+<li>Sorted, indexed BAM files</li>
+<li>VCF variant files</li>
+<li>Consensus sequences (FASTA)</li>
+<li>Pangolin lineage assignments</li>
+<li>Phylogenetic tree (Newick format)</li>
+</ul>
+<p>For advanced configuration, see the <a href="parameters.html">parameters</a> section.</p>
+<blockquote>
+<p>💡 Tip: Use <code>multiqc</code> to summarize all QC results in one place.</p>
+</blockquote>
+<p>You're now ready to use the pipeline!</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="index.html" class="btn btn-neutral float-left" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="workflow.html" class="btn btn-neutral float-right" title="Workflow Diagram">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright &copy; 2025 <a href="https://bibymaths.github.io">Abhinav Mishra</a>.</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/bibymaths/nf-illumina2lineage" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="index.html" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="workflow.html" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = ".";</script>
+    <script src="js/theme_extra.js"></script>
+    <script src="js/theme.js"></script>
+      <script src="search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

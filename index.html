@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="Documentation for the SARS-CoV-2 genome assembly and analysis pipeline using Nextflow" /><meta name="author" content="Abhinav Mishra" /><link rel="canonical" href="https://bibymaths.github.io/nf-illumina2lineage/index.html" />
+      <link rel="shortcut icon" href="img/favicon.ico" />
+    <title>SARS-CoV-2 Assembly Pipeline</title>
+    <link rel="stylesheet" href="css/theme.css" />
+    <link rel="stylesheet" href="css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Home";
+        var mkdocs_page_input_path = "index.md";
+        var mkdocs_page_url = "/nf-illumina2lineage/index.html";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="index.html" class="icon icon-home"> SARS-CoV-2 Assembly Pipeline
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Home</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#key-features">Key Features</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#system-requirements">System Requirements</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#dependencies">Dependencies</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pipeline-workflow">Pipeline Workflow</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#input-data">Input Data</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#output">Output</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#license">License</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#contact">Contact</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Pipeline Overview</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="workflow.html">Workflow Diagram</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="processes.html">Process Details</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Configuration</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="parameters.html">Parameters</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="containers.html">Docker/Singularity</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Results</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="outputs.html">Output Structure</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="lineage_qc.html">Lineage & QC</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="references.html">References</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="about.html">About</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SARS-CoV-2 Assembly Pipeline</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html" class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Home</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/bibymaths/nf-illumina2lineage/edit/master/docs/index.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="sars-cov-2-genome-assembly-from-illumina-reads">SARS-CoV-2 Genome Assembly from Illumina Reads<a class="headerlink" href="#sars-cov-2-genome-assembly-from-illumina-reads" title="Permanent link">&para;</a></h1>
+<p><img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/bibymaths/nf-illumina2lineage" /> </p>
+<p><a href="https://www.nextflow.io/"><img alt="Nextflow" src="https://img.shields.io/badge/nextflow-%E2%89%A50.27.6-brightgreen.svg" /></a> </p>
+<p><a href="https://doi.org/10.5281/zenodo.15376065"><img alt="DOI" src="https://zenodo.org/badge/DOI/10.5281/zenodo.15376065.svg" /></a></p>
+<p>Welcome to the documentation for the <code>nf-illumina2lineage</code> pipeline.</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>This repository provides a complete pipeline for assembling and analyzing the genome of SARS-CoV-2 using Illumina paired-end sequencing data. It includes steps for quality control, mapping, variant calling, primer clipping, consensus sequence generation, lineage annotation, and phylogenetic analysis.</p>
+<h3 id="key-features">Key Features<a class="headerlink" href="#key-features" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Automated environment setup using <code>mamba</code> and <code>conda</code></li>
+<li>Comprehensive quality control with <code>fastqc</code> and <code>fastp</code></li>
+<li>Mapping and visualization using <code>minimap2</code>, <code>samtools</code>, and <code>IGV</code></li>
+<li>Primer sequence clipping for clean alignments</li>
+<li>Variant calling with <code>freebayes</code> and VCF filtering with <code>vcfR</code></li>
+<li>Consensus sequence generation and lineage assignment with <code>pangolin</code></li>
+<li>Phylogenetic analysis and multiple sequence alignment with <code>mafft</code> and <code>iqtree</code></li>
+<li>Clear documentation and modular structure</li>
+</ul>
+<h2 id="system-requirements">System Requirements<a class="headerlink" href="#system-requirements" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Operating System</strong>: Linux (tested on Fedora 38)</li>
+<li><strong>Processor</strong>: Intel i5 or equivalent, with multithreading support</li>
+<li><strong>Memory</strong>: Minimum 8 GB</li>
+<li><strong>Software</strong>: Anaconda/Miniconda, mamba, R, and the listed bioinformatics tools</li>
+</ul>
+<h2 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h2>
+<p>The pipeline requires the following tools, managed via <code>mamba</code>:
+- QC: <code>fastqc</code>, <code>fastp</code>, <code>multiqc</code>
+- Mapping: <code>minimap2</code>, <code>samtools</code>, <code>bamclipper</code>
+- Variant Calling: <code>freebayes</code>, <code>vcftools</code>, <code>bcftools</code>
+- Sequence Analysis: <code>vcfR</code>, <code>mafft</code>, <code>iqtree</code>, <code>pangolin</code>
+- Visualization: <code>gnuplot</code>, <code>IGV</code>, <code>jalview</code></p>
+<h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Clone the repository:
+   <code>bash
+   git clone https://github.com/bibymaths/nf-illumina2lineage.git
+   cd nf-illumina2lineage</code></li>
+<li>Install <code>mamba</code> and create the environment:
+   <code>bash
+   wget "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh"
+   bash Mambaforge-Linux-x86_64.sh
+   conda update -y conda
+   mamba env create -p ./envs/projectSARS --file environment.yaml
+   mamba activate ./envs/projectSARS</code></li>
+</ol>
+<h2 id="pipeline-workflow">Pipeline Workflow<a class="headerlink" href="#pipeline-workflow" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Environment Setup</strong>: Install dependencies and configure the environment.</li>
+<li><strong>Data Preparation</strong>: Download input datasets and reference genomes.</li>
+<li><strong>Quality Control</strong>: Evaluate and preprocess raw sequencing reads.</li>
+<li><strong>Mapping</strong>: Align reads to the reference genome.</li>
+<li><strong>Primer Clipping</strong>: Remove primer sequences from alignments.</li>
+<li><strong>Variant Calling</strong>: Identify variants in the genome.</li>
+<li><strong>Filtering &amp; Masking</strong>: Use an R script for QC and filtering of VCF files.</li>
+<li><strong>Consensus Generation</strong>: Generate consensus sequences from filtered variants.</li>
+<li><strong>Lineage Annotation</strong>: Assign SARS-CoV-2 lineages using <code>pangolin</code>.</li>
+<li><strong>Phylogenetic Analysis</strong>: Perform multiple sequence alignment and build phylogenetic trees.</li>
+</ol>
+<h2 id="input-data">Input Data<a class="headerlink" href="#input-data" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Illumina paired-end sequencing data</li>
+<li>SARS-CoV-2 reference genome (NCBI accession: NC_045512.2)</li>
+</ul>
+<h2 id="output">Output<a class="headerlink" href="#output" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Quality control reports (<code>.html</code>, <code>.json</code>)</li>
+<li>Aligned sequences in BAM and VCF formats</li>
+<li>Consensus sequences in FASTA format</li>
+<li>Lineage annotations</li>
+<li>Phylogenetic trees and visualizations</li>
+</ul>
+<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Edit the <code>config.sh</code> file to specify input data paths and parameters.</li>
+<li>Run the pipeline:
+   <code>bash
+   bash scripts/run_pipeline.sh</code></li>
+<li>View results in the <code>results/</code> directory.</li>
+</ol>
+<p><img alt="Pipeline Diagram" src="files/methodSARS.svg" /></p>
+<p><img alt="File Description" src="files/filedesc.png" /></p>
+<h2 id="license">License<a class="headerlink" href="#license" title="Permanent link">&para;</a></h2>
+<p>This project is licensed under the MIT License. See the <code>LICENSE</code> file for details.</p>
+<h2 id="contact">Contact<a class="headerlink" href="#contact" title="Permanent link">&para;</a></h2>
+<p>For questions or issues, please contact:
+- <strong>Abhinav Mishra</strong>
+- Email: mishraabhinav36@gmail.com</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="quickstart.html" class="btn btn-neutral float-right" title="Quickstart">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright &copy; 2025 <a href="https://bibymaths.github.io">Abhinav Mishra</a>.</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/bibymaths/nf-illumina2lineage" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+    
+      <span><a href="quickstart.html" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = ".";</script>
+    <script src="js/theme_extra.js"></script>
+    <script src="js/theme.js"></script>
+      <script src="search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
+
+<!--
+MkDocs version : 1.6.1
+Build Date UTC : 2025-05-16 22:15:01.247247+00:00
+-->

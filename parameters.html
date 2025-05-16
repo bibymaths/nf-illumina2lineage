@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Abhinav Mishra" /><link rel="canonical" href="https://bibymaths.github.io/nf-illumina2lineage/parameters.html" />
+      <link rel="shortcut icon" href="img/favicon.ico" />
+    <title>Parameters - SARS-CoV-2 Assembly Pipeline</title>
+    <link rel="stylesheet" href="css/theme.css" />
+    <link rel="stylesheet" href="css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Parameters";
+        var mkdocs_page_input_path = "parameters.md";
+        var mkdocs_page_url = "/nf-illumina2lineage/parameters.html";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="index.html" class="icon icon-home"> SARS-CoV-2 Assembly Pipeline
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="index.html">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Pipeline Overview</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="workflow.html">Workflow Diagram</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="processes.html">Process Details</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Configuration</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Parameters</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#core-parameters">Core Parameters</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#optional-profiles">Optional Profiles</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#available-profiles">Available Profiles</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#custom-configuration">Custom Configuration</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="containers.html">Docker/Singularity</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Results</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="outputs.html">Output Structure</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="lineage_qc.html">Lineage & QC</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="references.html">References</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="about.html">About</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SARS-CoV-2 Assembly Pipeline</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html" class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Configuration</li>
+      <li class="breadcrumb-item active">Parameters</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/bibymaths/nf-illumina2lineage/edit/master/docs/parameters.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="pipeline-parameters">Pipeline Parameters<a class="headerlink" href="#pipeline-parameters" title="Permanent link">&para;</a></h1>
+<p>This section lists the configurable parameters used in the pipeline. These can be adjusted using a custom configuration file or passed directly via the command line.</p>
+<hr />
+<h2 id="core-parameters">Core Parameters<a class="headerlink" href="#core-parameters" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>reads</code></td>
+<td><code>*.fastq.gz</code></td>
+<td>Glob pattern to match input FASTQ files</td>
+</tr>
+<tr>
+<td><code>reference</code></td>
+<td><code>reference.fasta</code></td>
+<td>Reference genome in FASTA format</td>
+</tr>
+<tr>
+<td><code>threads</code></td>
+<td><code>8</code></td>
+<td>Number of threads to use for multithreaded tools</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="optional-profiles">Optional Profiles<a class="headerlink" href="#optional-profiles" title="Permanent link">&para;</a></h2>
+<p>You can use execution profiles to control behavior, e.g.:</p>
+<pre class="codehilite"><code class="language-bash">nextflow run main.nf -profile docker
+</code></pre>
+
+<h3 id="available-profiles">Available Profiles<a class="headerlink" href="#available-profiles" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><code>docker</code></strong>: Runs processes inside Docker containers using the specified image.</li>
+<li><strong><code>singularity</code></strong>: Runs in Singularity containers (if configured).</li>
+<li><strong><code>local</code></strong>: Default execution on local machine without containers.</li>
+</ul>
+<hr />
+<h2 id="custom-configuration">Custom Configuration<a class="headerlink" href="#custom-configuration" title="Permanent link">&para;</a></h2>
+<p>To override parameters, use <code>-params-file</code>:</p>
+<pre class="codehilite"><code class="language-bash">nextflow run main.nf -params-file custom_params.json
+</code></pre>
+
+<p>Example <code>custom_params.json</code>:</p>
+<pre class="codehilite"><code class="language-json">{
+  &quot;reads&quot;: &quot;data/*.fq.gz&quot;,
+  &quot;reference&quot;: &quot;data/NC_045512.2.fasta&quot;,
+  &quot;threads&quot;: 16
+}
+</code></pre>
+
+<blockquote>
+<p>💡 All parameters can also be set directly via <code>-params</code> flag or in <code>nextflow.config</code>.</p>
+</blockquote>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="processes.html" class="btn btn-neutral float-left" title="Process Details"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="containers.html" class="btn btn-neutral float-right" title="Docker/Singularity">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright &copy; 2025 <a href="https://bibymaths.github.io">Abhinav Mishra</a>.</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/bibymaths/nf-illumina2lineage" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="processes.html" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="containers.html" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = ".";</script>
+    <script src="js/theme_extra.js"></script>
+    <script src="js/theme.js"></script>
+      <script src="search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
