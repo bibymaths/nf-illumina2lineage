@@ -1,4 +1,4 @@
-name: sars_genome_assembly
+name: illumina2lineage
 channels:
   - conda-forge
   - bioconda

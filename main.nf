@@ -52,7 +52,9 @@ process downloadData {
       https://osf.io/qu3bh/download
 
     # Unpack into cwd
-    pigz -dc illumina-amplicon-capture-wgs.tar.gz | tar -x -C .
+    # pigz -dc illumina-amplicon-capture-wgs.tar.gz | tar -x -C .
+
+    tar -xzf illumina-amplicon-capture-wgs.tar.gz -C .
 
     # Move any fastq.gz out of nested dirs into cwd
     find . -mindepth 2 -type f -name "*.fastq.gz" -exec mv {} . \\;
@@ -159,38 +161,30 @@ process primerClipping {
 
     script:
     """
+    set -euo pipefail
+
     wget -qO cleanplex.amplicons.bedpe https://osf.io/4nztj/download
     sed 's/NM_003194/NC_045512.2/g' cleanplex.amplicons.bedpe > SARSCoV2.amplicons.bedpe
-
-    bamclipper.sh -b \$bam -p SARSCoV2.amplicons.bedpe -n ${task.cpus} -u 10 -d 10 \\
+    samtools index -@ ${task.cpus} "${bam}" || true
+    bamclipper.sh -b "${bam}" -p SARSCoV2.amplicons.bedpe -n ${task.cpus} -u 10 -d 10 \\
       -o ${sample_id}.primerclipped.bam
     """
 }
 
-
 process variantCalling {
-    publishDir "${params.intermediate}/${task.process}", mode: 'copy'
-    input:
-      path primer_files
-      path ref
-
-    output:
-      path "datafiles/freebayes-illumina*.vcf"
-
-    script:
-    """
-    mkdir -p datafiles
-    i=1
-    for bam in datafiles/*.primerclipped.bam; do
-      freebayes -f $ref --min-alternate-count 10 \\
-        --min-alternate-fraction 0.1 --min-coverage 20 \\
-        --pooled-continuous --haplotype-length -1 \$bam \\
-        > datafiles/freebayes-illumina\$i.vcf
-      i=\$((i+1))
-    done
-    """
+  input:
+    tuple val(sample_id), path(bam)
+    path ref
+  output:
+    tuple val(sample_id), path("${sample_id}.vcf")
+  script:
+  """
+  freebayes -f ${ref} --min-alternate-count 10 \
+    --min-alternate-fraction 0.1 --min-coverage 20 \
+    --pooled-continuous --haplotype-length -1 "${bam}" \
+    > ${sample_id}.vcf
+  """
 }
-
 
 process vcfMaskingQC {
     publishDir "${params.intermediate}/${task.process}", mode: 'copy'
