@@ -4,47 +4,127 @@ The pipeline generates multiple outputs at each stage of analysis. Below is a su
 
 ---
 
-## Directory Structure
+## Directory Structure after Pipeline Execution
+
 ```
-results/
-├── qc/
-│   ├── *.fastqc.html           # FastQC reports
-│   ├── *.fastp.html/json       # Fastp reports
-│   └── multiqc_report.html     # Summary report
-├── alignments/
-│   ├── *.sam                   # Raw alignments
-│   ├── *.sorted.bam            # Sorted BAM files
-│   └── *.bai                   # BAM index files
-├── clipped/
-│   └── *.primerclipped.bam     # Primer-removed alignments
-├── variants/
-│   └── *.vcf                   # Raw variant calls
-├── consensus/
-│   └── *.fasta                 # Consensus genome sequences
+datafiles/
+├── consensusGeneration/
+│   └── <sample_id>.consensus.fasta    # Consensus sequence for each sample
+├── consensusQC/
+│   ├── consensus_invalid.fasta        # Sequences that failed QC
+│   ├── consensus_president_logger.log # Log file from President tool
+│   ├── consensus_report.tsv           # Tabular QC report
+│   └── consensus_valid.fasta          # Sequences that passed QC
+├── downloadData/
+│   ├── <sample_id>_R1_001.fastq.gz    # Raw Read 1
+│   └── <sample_id>_R2_001.fastq.gz    # Raw Read 2
+├── mapping/
+│   └── <sample_id>.sorted.bam         # Aligned reads (sorted)
+├── mergeConsensus/
+│   └── consensus-seqs.fasta           # Multi-FASTA of all valid consensus sequences
+├── pangolinLineage/
+│   └── lineage_report.csv             # SARS-CoV-2 lineage assignments
 ├── phylogeny/
-│   ├── alignment.fasta         # MSA file
-│   └── *.treefile              # Phylogenetic tree
-├── lineage/
-│   └── lineage_report.csv      # Pangolin lineage calls
-└── qc_consensus/
-    └── output/                 # PRESIDENT quality reports
+│   └── phylo.treefile                 # Phylogenetic tree file
+├── primerClipping/
+│   └── <sample_id>.primerclipped.bam  # Alignments with primers soft-clipped
+├── qc/
+│   ├── <sample_id>.R1.clean.fastq.gz  # Quality-trimmed Read 1
+│   ├── <sample_id>.R2.clean.fastq.gz  # Quality-trimmed Read 2
+│   ├── <sample_id>.fastp.html         # Trimming report (HTML)
+│   └── <sample_id>.fastp.json         # Trimming report (JSON)
+└── referenceGenome/
+    └── reference.fasta                # SARS-CoV-2 reference genome
 ```
+---
+
+## Files Content Description
+
+###**1. Raw Data & Reference**####`downloadData/`**Content:** Raw Sequencing Reads
+
+* **`<sample_id>_R1_001.fastq.gz` / `_R2_001.fastq.gz**`: The original, unprocessed sequencing data from the sequencer or repository (e.g., SRA/ENA).
+* **Format:** FASTQ (gzip compressed).
+* **Use:** The starting point for the entire pipeline.
+
+
+
+####`referenceGenome/`**Content:** Viral Reference
+
+* **`reference.fasta`**: The standard SARS-CoV-2 genome sequence (NC_045512.2).
+* **Use:** Used as the template for mapping reads and calling variants.
+
+
 
 ---
 
-## Output Types
+###**2. Pre-processing & Alignment**####`qc/`**Content:** Quality Control & Trimming
 
-| Stage              | File Type(s)        | Description |
-|-------------------|---------------------|-------------|
-| Quality Control    | `.html`, `.json`   | QC and trimming reports |
-| Mapping            | `.bam`, `.bai`     | Aligned reads, indexed |
-| Primer Clipping    | `.primerclipped.bam`| Primer-trimmed alignments |
-| Variant Calling    | `.vcf`             | Raw variant calls |
-| Consensus          | `.fasta`           | Consensus genome sequences |
-| Lineage Annotation | `.csv`             | Pangolin lineage table |
-| Phylogenetic Tree  | `.fasta`, `.treefile` | MSA + tree structure |
-| QC (Consensus)     | `output/` files    | Nucleotide identity, ambiguities |
+* **`<sample_id>.fastp.html`**: An interactive HTML report visualizing read quality *before* and *after* trimming. Look here to check adapter removal and read quality scores.
+* **`<sample_id>.R1/R2.clean.fastq.gz`**: The "clean" sequencing reads. Adapters have been trimmed, and low-quality bases removed. These are used for mapping.
 
-> 📁 All files are written into structured subdirectories under `results/` by default.
+####`mapping/`**Content:** Genome Alignment
 
-You can modify the output paths via `nextflow.config` or process-specific directives.
+* **`<sample_id>.sorted.bam`**: The Binary Alignment Map (BAM) file. It contains the clean reads aligned to the reference genome, sorted by coordinate.
+* **Use:** Essential for visualization in tools like IGV (Integrative Genomics Viewer) to see coverage depth and mutations.
+
+####`primerClipping/`**Content:** PCR Primer Removal
+
+* **`<sample_id>.primerclipped.bam`**: A modified BAM file where PCR primer sequences have been "soft-clipped" (masked).
+* **Why this matters:** Amplicon sequencing uses synthetic primers to amplify the virus. If these synthetic sequences aren't removed, they can mask real mutations or introduce false ones.
+
+---
+
+###**3. Consensus & Analysis**####`consensusGeneration/`**Content:** Individual Viral Genomes
+
+* **`<sample_id>.consensus.fasta`**: The reconstructed viral genome for a *single specific sample*. This sequence represents the specific variant of the virus found in that patient/sample.
+
+####`mergeConsensus/`**Content:** Aggregate Genomes
+
+* **`consensus-seqs.fasta`**: A Multi-FASTA file containing the consensus sequences of **all** processed samples combined into one file.
+* **Use:** This is the primary input for downstream phylogenetic analysis and lineage assignment.
+
+---
+
+###**4. Classification & Quality Assessment**####`pangolinLineage/`**Content:** Variant Classification
+
+* **`lineage_report.csv`**: A spreadsheet generated by the **Pangolin** tool.
+* **Key Columns to check:**
+* `lineage`: The assigned Pango lineage (e.g., B.1.1.7, BA.5).
+* `scorpio_call`: The WHO variant name (e.g., Alpha, Omicron).
+* `ambiguity_score`: Quality metric indicating how many "N" (unknown) bases affected the call.
+
+
+
+####`consensusQC/`**Content:** Genome Quality Metrics (Tool: President)
+
+* **`consensus_report.tsv`**: A tabular summary of genome quality. Checks for "N" content (ambiguous bases) and frameshifts.
+* **`consensus_valid.fasta`**: Genomes that PASSED quality control checks.
+* **`consensus_invalid.fasta`**: Genomes that FAILED checks (usually due to low coverage resulting in too many Ns).
+
+####`phylogeny/`**Content:** Evolutionary Tree
+
+* **`phylo.treefile`**: A phylogenetic tree file generated by **IQ-TREE**.
+* **Use:** Can be opened in tree viewers like **FigTree** or **Dendroscope** to visualize how the samples are related to each other evolutionarily.
+
+--- 
+
+### Execution Analysis Reports 
+
+Every time the pipeline runs, Nextflow generates a fresh set of execution reports to help you analyze performance, debug issues, and verify the workflow structure. These files are overwritten with each new run unless renamed.
+
+```text
+results/
+├── pipeline_dag.html      # Visual graph of the workflow
+├── report.html            # Comprehensive execution report
+├── timeline.html          # Timeline of task execution
+└── trace.txt              # Raw execution metrics (TSV)
+```
+
+#### Pipeline Outputs
+
+| File              | Description |
+|-------------------|-------------|
+| `pipeline_dag.html` | A schematic **DAG** showing how data flows between processes. Use this to quickly verify that the pipeline logic is connected correctly. |
+| `report.html`       | A detailed **HTML dashboard** summarizing the run. It includes:<br>• Resource usage (CPU, memory, I/O) per process<br>• Task status (completed/failed) and exit codes<br>• The exact command line used to launch the run |
+| `timeline.html`     | A **Gantt chart** visualizing the duration of every task. Useful for spotting bottlenecks by showing queue time, start time, and runtime. |
+| `trace.txt`         | A **tab-separated text file** with raw metrics for every task, including wall-clock duration, peak memory (RSS), and %CPU. Ideal for programmatic analysis (Excel, Pandas, etc.). |

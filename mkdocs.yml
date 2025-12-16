@@ -20,7 +20,6 @@ nav:
       - Process Details: processes.md
   - Configuration:
       - Parameters: parameters.md
-      - Docker/Singularity: containers.md
   - Results:
       - Output Structure: outputs.md
       - Lineage & QC: lineage_qc.md
