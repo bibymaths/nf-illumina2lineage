@@ -34,18 +34,11 @@ workflow {
     // 1. Prepare inputs for QC: extract just the files and collect them into a list
     vcf_list = vcf_ch.map { it[1] }.collect()
 
-    // 2. Define where your R script is located
-    // Make sure 'scripts/vcf_qc_masking.R' exists in your project folder!
-    r_script = file("${projectDir}/scripts/vcf_qc_masking.R")
-
-    // 3. Run the QC
-    qc_masked = vcfMaskingQC(vcf_list, ref_ch, r_script)
-
-    // 1. Generate consensus for each sample in parallel
+    // Generate per-sample consensus
     individual_consensus_ch = consensusGeneration(vcf_ch, ref_ch)
 
-    // 2. Merge all individual FASTAs into one file for Pangolin
-    merged_consensus_ch = individual_consensus_ch.collectFile(name: 'consensus-seqs.fasta')
+    // Merge
+    merged_consensus_ch = mergeConsensus(individual_consensus_ch.collect())
 
     // 3. Run Pangolin on the merged file
     pangolinLineage(merged_consensus_ch)
@@ -83,22 +76,28 @@ process downloadData {
 }
 
 process referenceGenome {
-
     publishDir "${params.intermediate}/${task.process}", mode: 'copy'
 
     output:
-      path params.reference
+      path "reference.fasta"
 
     script:
     """
     set -euo pipefail
-    mkdir -p \$(dirname ${params.reference})
 
-    wget -q https://ftp.ncbi.nlm.nih.gov/entrez/entrezdirect/install-edirect.sh -O - | bash
-    export PATH=\$HOME/edirect:\$PATH
+    echo "Downloading SARS-CoV-2 Reference..."
 
-    esearch -db nucleotide -query "NC_045512.2" | efetch -format fasta \\
-      > ${params.reference}
+    # Use a direct, stable link from NCBI (E-utilities)
+    wget "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=NC_045512.2&rettype=fasta&retmode=text" -O reference.fasta
+
+    # SAFETY CHECK: Fail if the file is empty
+    if [ ! -s reference.fasta ]; then
+        echo "ERROR: reference.fasta is empty. Download failed."
+        exit 1
+    fi
+
+    # Check the first few lines to ensure it looks like a FASTA
+    head -n 2 reference.fasta
     """
 }
 
@@ -230,46 +229,8 @@ process variantCalling {
     tuple val(sample_id), path("${sample_id}.vcf")
   script:
   """
-  freebayes -f ${ref} --min-alternate-count 10 \
-    --min-alternate-fraction 0.1 --min-coverage 20 \
-    --pooled-continuous --haplotype-length -1 "${bam}" \
-    > ${sample_id}.vcf
+  freebayes -f ${ref} "${bam}" > ${sample_id}.vcf
   """
-}
-
-process vcfMaskingQC {
-    publishDir "${params.intermediate}/${task.process}", mode: 'copy'
-
-    input:
-      path vcf_files
-      path "reference.fasta"
-      path r_script
-
-    output:
-      path "pair*/masked-strict.vcf", emit: masked_vcfs
-      path "pair*/*.pdf",             emit: qc_plots
-
-    script:
-    """
-    mkdir -p pair1 pair2 pair3 scripts
-
-    cp "${r_script}" scripts/vcf_qc_masking.R
-
-    # FIX: Safely clean the header using a temporary file
-    # This keeps only the ID (first column) and removes the description
-    cut -d ' ' -f 1 reference.fasta > reference.tmp
-    mv reference.tmp reference.fasta
-
-    # Dynamically assign the input VCFs
-    i=1
-    for vcf in \$(ls *.vcf | sort); do
-        if [ "\$i" -gt 3 ]; then break; fi
-        cp "\$vcf" "pair\$i/freebayes-illumina.vcf"
-        i=\$((i+1))
-    done
-
-    Rscript scripts/vcf_qc_masking.R
-    """
 }
 
 process consensusGeneration {
@@ -281,56 +242,69 @@ process consensusGeneration {
       path ref
 
     output:
-      path "${sample_id}.consensus.fasta"
+      path "${sample_id}.consensus.fasta", emit: consensus_fasta
 
     script:
     """
-    set -u
-    # set -e is removed to allow conditional handling, but we must handle pipe errors manually
+    set -euo pipefail
 
-    # FIX: Add '|| true' so if grep finds 0 lines (exit code 1), the script continues
-    VAR_COUNT=\$(grep -v "^#" "${vcf}" | wc -l || true)
+    # [CRITICAL FIX]
+    # Freebayes produces overlapping variants that crash 'bcftools consensus'.
+    # We MUST normalize first to fix these overlaps.
+    bcftools norm -f "${ref}" -m -both "${vcf}" -o normalized.vcf
 
-    if [ "\$VAR_COUNT" -eq 0 ]; then
-        echo "No variants found for ${sample_id}. Using reference as consensus."
-        sed "s/^>NC_045512.2/>${sample_id}/" "${ref}" > "${sample_id}.consensus.fasta"
-    else
-        # Normalize
-        bcftools norm -f "${ref}" -m -both -o normalized.vcf "${vcf}"
-        bgzip -c normalized.vcf > normalized.vcf.gz
-        bcftools index normalized.vcf.gz
+    # Now run your simple steps using the FIXED vcf
+    bcftools view normalized.vcf -Oz -o masked-strict.vcf.gz
+    bcftools index masked-strict.vcf.gz
 
-        # Try generating consensus
-        if bcftools consensus -f "${ref}" normalized.vcf.gz -o temp.fasta; then
-            sed "s/^>NC_045512.2/>${sample_id}/" temp.fasta > "${sample_id}.consensus.fasta"
-        else
-            echo "Standard consensus failed. Falling back to SNP-only mode."
-            bcftools view -v snps normalized.vcf.gz -Oz -o snps_only.vcf.gz
-            bcftools index snps_only.vcf.gz
+    bcftools consensus -f "${ref}" masked-strict.vcf.gz -o "${sample_id}.consensus.fasta"
 
-            if bcftools consensus -f "${ref}" snps_only.vcf.gz -o temp_snps.fasta; then
-                 sed "s/^>NC_045512.2/>${sample_id}_SNPsOnly/" temp_snps.fasta > "${sample_id}.consensus.fasta"
-            else
-                 echo "All methods failed. Using reference."
-                 sed "s/^>NC_045512.2/>${sample_id}_FAILED/" "${ref}" > "${sample_id}.consensus.fasta"
-            fi
-        fi
-    fi
+    sed -i "s/NC_045512.2/${sample_id}/g" "${sample_id}.consensus.fasta"
     """
 }
 
+process mergeConsensus {
+  publishDir "${params.intermediate}/${task.process}", mode: 'copy'
+
+  input:
+    path fasta_files
+
+  output:
+    path "consensus-seqs.fasta"
+
+  script:
+  """
+  set -euo pipefail
+  ls -lh *.fasta || true
+  cat *.fasta > consensus-seqs.fasta
+
+  echo "[DEBUG] merged file size:"
+  ls -lh consensus-seqs.fasta
+
+  echo "[DEBUG] headers:"
+  grep '^>' consensus-seqs.fasta || true
+  """
+}
+
 process pangolinLineage {
+    conda 'bioconda::pangolin bioconda::pangolin-data'
+
     publishDir "${params.intermediate}/${task.process}", mode: 'copy'
+
     input:
       path consensus_files
 
     output:
-      path "results/lineage_report.csv"
+      path "lineage_report.csv"
 
     script:
     """
-    mkdir -p results
-    pangolin ${consensus_files} --threads ${task.cpus} -o results
+    echo "Running Pangolin on ${consensus_files}..."
+
+    # Run Pangolin
+    # -t: threads
+    # --outfile: specifies the output CSV name
+    pangolin ${consensus_files} --threads ${task.cpus} --outfile lineage_report.csv
     """
 }
 
@@ -341,32 +315,46 @@ process consensusQC {
       path ref
 
     output:
-      path "results/output/"
+      path "consensus_*"
 
     script:
     """
     mkdir -p results/output
-    # FIX: Removed backslash before consensus_files
     president -r "${ref}" -q "${consensus_files}" -t ${task.cpus} \\
-      -a -p results/output/ -f consensus_
+      -a -p . -f consensus_
     """
 }
 
 process phylogeny {
     publishDir "${params.intermediate}/${task.process}", mode: 'copy'
+
     input:
       path consensus_files
 
     output:
-      path "results/phylo.treefile"
+      path "phylo.treefile", optional: true
 
     script:
     """
     mkdir -p results
 
-    # Align sequences
-    mafft "${consensus_files}" > alignment.fasta
-    # Build phylogenetic tree
-    iqtree -s alignment.fasta -nt ${task.cpus} -pre results/phylo
+    # 1. Merge all consensus files into one
+    cat ${consensus_files} > all_sequences.fasta
+
+    # 2. Check if file is empty or too small (less than 1KB)
+    if [ ! -s all_sequences.fasta ] || [ \$(stat -c%s all_sequences.fasta) -lt 1000 ]; then
+        echo "ERROR: Combined consensus file is empty. Skipping tree generation."
+        exit 0
+    fi
+
+    # 3. Align
+    mafft --thread ${task.cpus} all_sequences.fasta > alignment.fasta
+
+    # 4. Build Tree (Check if alignment succeeded)
+    if [ -s alignment.fasta ]; then
+        iqtree -s alignment.fasta -nt ${task.cpus} -pre phylo -m GTR
+    else
+        echo "ERROR: Alignment failed or is empty."
+    fi
     """
 }
