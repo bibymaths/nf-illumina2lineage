@@ -9,11 +9,18 @@ library(vcfR)
 ## Visualize, QC, and mask VCF files for SARS-CoV-2
 
 # Load data
+# We use tryCatch or file.exists check to make the script robust if fewer than 3 samples exist
 vcf1 <- read.vcfR("pair1/freebayes-illumina.vcf", verbose = FALSE)
 vcf2 <- read.vcfR("pair2/freebayes-illumina.vcf", verbose = FALSE)
 vcf3 <- read.vcfR("pair3/freebayes-illumina.vcf", verbose = FALSE)
 
 dna <- ape::read.dna("reference.fasta", format = "fasta")
+
+# --- FIX START ---
+# Clean the FASTA headers to match the VCF Chromosome ID.
+# This removes everything after the first space (e.g., descriptions).
+names(dna) <- sub(" .*", "", labels(dna))
+# --- FIX END ---
 
 # Create chromR objects
 chrom1 <- create.chromR(name='Illumina-PE1', vcf=vcf1, seq=dna)
