@@ -1,5 +1,16 @@
-results/
-.nextflow/
-work/
+# Nextflow core files
 .nextflow*
-data*/
+work/
+.nextflow.log*
+
+# Input Data and Results (Do not commit these!)
+datafiles/
+results/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE settings (optional but recommended)
+.vscode/
+.idea/
