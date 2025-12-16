@@ -1,0 +1,107 @@
+cff-version: 1.2.0
+message: "If you use this software in your research, please cite it using the metadata from this file."
+title: "nf-illumina2lineage: A Nextflow pipeline for SARS-CoV-2 genome assembly and lineage analysis"
+type: software
+authors:
+  - family-names: "Mishra"
+    given-names: "Abhinav"
+    orcid: "0009-0005-3179-7408"
+    affiliation: "Freie Universität Berlin"
+    city: "Berlin"
+    country: "DE"
+contact:
+  - family-names: "Mishra"
+    given-names: "Abhinav"
+    email: "mishraabhinav36@gmail.com"
+license-url: "https://opensource.org/license/bsd-3-clause"
+repository-code: "https://github.com/bibymaths/nf-illumina2lineage"
+url: "https://github.com/bibymaths/nf-illumina2lineage"
+abstract: >-
+  A reproducible and modular Nextflow pipeline for SARS-CoV-2 genome assembly and
+  lineage analysis from Illumina paired-end sequencing data. The pipeline automates
+  read quality control, reference-based mapping, primer clipping, variant calling,
+  consensus generation, lineage assignment, and phylogenetic analysis.
+  Developed as part of the SARS-2 Bioinformatics & Data Science course.
+keywords:
+  - bioinformatics
+  - nextflow
+  - pipeline
+  - SARS-CoV-2
+  - covid-19
+  - genome-assembly
+  - lineage-assignment
+  - phylogenetics
+  - illumina
+  - reproducible-research
+license: BSD-3-Clause
+version: 1.0.0
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.15376065
+    description: "The Zenodo DOI for the software release."
+date-released: 2023-09-01
+references:
+  - type: software
+    title: "Nextflow"
+    abstract: "A DSL for parallel and scalable computational pipelines."
+    authors:
+      - family-names: "Di Tommaso"
+        given-names: "Paolo"
+  - type: software
+    title: "FastQC"
+    abstract: "A quality control tool for high throughput sequence data."
+    authors:
+      - family-names: "Andrews"
+        given-names: "Simon"
+  - type: software
+    title: "fastp"
+    abstract: "An ultra-fast all-in-one FASTQ preprocessor."
+    authors:
+      - family-names: "Chen"
+        given-names: "Shifu"
+  - type: software
+    title: "Minimap2"
+    abstract: "Pairwise alignment for nucleotide sequences."
+    authors:
+      - family-names: "Li"
+        given-names: "Heng"
+  - type: software
+    title: "Samtools"
+    abstract: "Tools for manipulating next-generation sequencing data."
+    authors:
+      - family-names: "Danecek"
+        given-names: "Petr"
+  - type: software
+    title: "BamClipper"
+    abstract: "Remove primer sequences from BAM files."
+    authors:
+      - family-names: "Au"
+        given-names: "Kin Fai"
+  - type: software
+    title: "FreeBayes"
+    abstract: "Bayesian haplotype-based polymorphism discovery and genotyping."
+    authors:
+      - family-names: "Garrison"
+        given-names: "Erik"
+  - type: software
+    title: "Bcftools"
+    abstract: "Utilities for variant calling and manipulating VCFs and BCFs."
+    authors:
+      - family-names: "Danecek"
+        given-names: "Petr"
+  - type: software
+    title: "Pangolin"
+    abstract: "Phylogenetic Assignment of Named Global Outbreak LINeages."
+    authors:
+      - family-names: "O'Toole"
+        given-names: "Áine"
+  - type: software
+    title: "IQ-TREE"
+    abstract: "Efficient software for phylogenomic inference."
+    authors:
+      - family-names: "Minh"
+        given-names: "Bui Quang"
+  - type: software
+    title: "President"
+    abstract: "Pairwise alignment-based QC metrics for consensus sequences."
+    repository-code: "https://github.com/rki-mf1/president"
