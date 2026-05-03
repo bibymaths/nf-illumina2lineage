@@ -1,5 +1,3 @@
-# Lineage Annotation and Consensus Quality Control
-
 This section explains how the pipeline handles lineage annotation and consensus sequence quality assessment.
 
 ---

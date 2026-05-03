@@ -1,5 +1,3 @@
-# About This Project
-
 This pipeline was developed as part of the **SARS-2 Bioinformatics & Data Science** course offered jointly by **Freie
 Universität Berlin** and the **Robert Koch Institute**.
 
@@ -92,5 +90,3 @@ project possible.
 ### License
 
 This work is licensed under the BSD 3-Clause License.
-
-> For a list of references, see [references.md](references.md).

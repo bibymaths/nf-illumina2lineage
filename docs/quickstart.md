@@ -1,5 +1,3 @@
-# Quickstart Guide
-
 This guide will help you get the pipeline up and running as quickly as possible. To use your own data, you must override
 the input parameters or modify the downloadData process, as the current script hardcodes a download from OSF.
 

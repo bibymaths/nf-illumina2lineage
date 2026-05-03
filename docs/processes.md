@@ -1,5 +1,3 @@
-# Process Details
-
 This section describes each Nextflow `process` in the pipeline, including their inputs, outputs, and core functionality.
 
 ---

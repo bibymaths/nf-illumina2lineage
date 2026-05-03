@@ -1,5 +1,3 @@
-# Pipeline Parameters
-
 This section lists the configurable parameters used in the pipeline. These can be adjusted using a custom configuration
 file or passed directly via the command line.
 

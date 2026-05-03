@@ -1,25 +1,28 @@
-# Pipeline Workflow Diagram and Overview
+```mermaid
+flowchart TD
+    A([🧬 Start]) --> B[Environment Setup\nConfigure bioinformatics env]
+    B --> C[Data Preparation\nDownload reference genome\n& raw Illumina reads]
+    C --> D[Quality Control\nfastqc · fastp · multiqc]
+    D --> E[Mapping\nminimap2 · samtools]
+    E --> F[Primer Clipping\nbamclipper]
+    F --> G[Variant Calling\nfreebayes]
+    G --> H[Normalization\nbcftools norm]
+    H --> I[Consensus Generation\nbcftools]
+    I --> J[Lineage Annotation\npangolin]
+    I --> K[Phylogenetic Analysis\nmafft · iqtree]
+    J --> L([✅ End])
+    K --> L
 
-This section outlines the logical structure of the pipeline and provides a visual overview of each step.
-
-## Workflow Summary
-
-The pipeline consists of the following key stages:
-
-1. **Environment Setup**: Initialize and configure the bioinformatics environment.
-2. **Data Preparation**: Download SARS-CoV-2 reference genome and raw Illumina sequencing data.
-3. **Quality Control**: Assess and clean raw sequencing reads using `fastqc`, `fastp`, and `multiqc`.
-4. **Mapping**: Align cleaned reads to the SARS-CoV-2 reference genome using `minimap2` and process alignments with
-   `samtools`.
-5. **Primer Clipping**: Remove primer sequences from alignments using `bamclipper`.
-6. **Variant Calling**: Call genetic variants with `freebayes`.
-7. **Normalization**: Normalize Indels and split multiallelic sites using `bcftools norm` to prepare for consensus
-   generation.
-8. **Consensus Generation**: Generate consensus sequences using `bcftools`.
-9. **Lineage Annotation**: Annotate sequences using `pangolin`.
-10. **Phylogenetic Analysis**: Perform multiple sequence alignment with `mafft` and infer phylogeny using `iqtree`.
-
-
-> **Note**: Each step is implemented as a separate Nextflow `process` and connected logically in `main.nf`.
-
-For process-specific logic and input/output, see the [Process Details](processes.md) section.
+    style A fill:#0D9488,color:#fff,stroke:none
+    style L fill:#0D9488,color:#fff,stroke:none
+    style B fill:#1E3A5F,color:#93C5FD,stroke:#3B82F6
+    style C fill:#1E3A5F,color:#93C5FD,stroke:#3B82F6
+    style D fill:#1E3A5F,color:#93C5FD,stroke:#3B82F6
+    style E fill:#1E3A5F,color:#93C5FD,stroke:#3B82F6
+    style F fill:#1E3A5F,color:#93C5FD,stroke:#3B82F6
+    style G fill:#1E3A5F,color:#93C5FD,stroke:#3B82F6
+    style H fill:#1E3A5F,color:#93C5FD,stroke:#3B82F6
+    style I fill:#1E3A5F,color:#93C5FD,stroke:#3B82F6
+    style J fill:#164E63,color:#67E8F9,stroke:#0891B2
+    style K fill:#164E63,color:#67E8F9,stroke:#0891B2
+```

@@ -1,16 +1,56 @@
 site_name: SARS-CoV-2 Assembly Pipeline
-site_description: 'Documentation for the SARS-CoV-2 genome assembly and analysis pipeline using Nextflow'
-site_author: 'Abhinav Mishra'
+site_description: Documentation for the SARS-CoV-2 genome assembly and analysis pipeline using Nextflow
+site_author: Abhinav Mishra
 site_url: https://bibymaths.github.io/nf-illumina2lineage
 use_directory_urls: false
+
+repo_name: bibymaths/nf-illumina2lineage
 repo_url: https://github.com/bibymaths/nf-illumina2lineage
+edit_uri: edit/main/docs/
 
 theme:
-  name: readthedocs
+  name: material
   language: en
+  font:
+    text: Ubuntu           # The font for standard paragraph text
+    code: Fira Code        # The font for code blocks
+  logo: assets/logo.png
+  favicon: assets/favicon.png
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: cyan
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: cyan
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  icon:
+    repo: fontawesome/brands/github
   features:
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.tracking
     - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.indexes
+    - toc.follow
+    - toc.integrate
+    - search.suggest
+    - search.highlight
+    - search.share
     - content.code.copy
+    - content.code.select
+    - content.code.annotate
+    - content.action.edit
+    - content.action.view
+    - header.autohide
 
 nav:
   - Home: index.md
@@ -27,16 +67,54 @@ nav:
   - About: about.md
 
 markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - footnotes
+  - def_list
+  - tables
   - toc:
       permalink: true
-  - admonition
-  - codehilite
+      title: On this page
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.tasklist:
+      custom_checkbox: true
 
 plugins:
   - search
+  - tags
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/bibymaths
+      name: GitHub
+    - icon: fontawesome/solid/globe
+      link: https://bibymaths.github.io
+      name: Website
+
+extra_css:
+  - assets/stylesheets/extra.css
 
 watch:
   - docs
 
 copyright: >
-  Copyright &copy; 2025 <a href="https://bibymaths.github.io">Abhinav Mishra</a>.
+  Copyright &copy; 2025
+  <a href="https://bibymaths.github.io">Abhinav Mishra</a>.
