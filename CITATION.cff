@@ -34,7 +34,7 @@ keywords:
   - illumina
   - reproducible-research
 license: BSD-3-Clause
-version: 1.0.0
+version: 0.9.4
 identifiers:
   - type: doi
     value: 10.5281/zenodo.15376065

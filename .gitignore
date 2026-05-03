@@ -13,4 +13,6 @@ Thumbs.db
 
 # IDE settings (optional but recommended)
 .vscode/
-.idea/
+.idea/# pixi environments
+.pixi/*
+!.pixi/config.toml

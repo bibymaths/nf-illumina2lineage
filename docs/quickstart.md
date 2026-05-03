@@ -8,19 +8,81 @@ git clone https://github.com/bibymaths/nf-illumina2lineage.git
 cd nf-illumina2lineage
 ```
 
-## Step 2: Install Mamba (if not already installed)
+````markdown
+## Step 2: Install Pixi
+
+Install Pixi using the official installer:
 
 ```bash
-wget "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh"
-bash Mambaforge-Linux-x86_64.sh
+curl -fsSL https://pixi.sh/install.sh | bash
+````
+
+Restart your shell, or reload your shell configuration:
+
+```bash
+source ~/.bashrc
 ```
 
-## Step 3: Create and Activate the Environment
+Verify the installation:
 
 ```bash
-conda env create -f environment.yml
-conda activate illumina2lineage
-python -m pip install -r requirements.txt
+pixi --version
+```
+
+## Step 3: Install and Use the Environment
+
+From the root directory of this pipeline, install the Pixi environment:
+
+```bash
+pixi install
+```
+
+Run commands inside the environment using:
+
+```bash
+pixi run <command>
+```
+
+For example:
+
+```bash
+pixi run python --version
+pixi run nextflow -version
+```
+
+To enter the environment shell:
+
+```bash
+pixi shell
+```
+
+If your environment is named `illumina2lineage` instead of `default`, use this version:
+
+## Step 3: Install and Use the Environment
+
+From the root directory of this pipeline, install the Pixi environment:
+
+```bash
+pixi install -e illumina2lineage
+```
+
+Run commands inside the environment using:
+
+```bash
+pixi run -e illumina2lineage <command>
+```
+
+For example:
+
+```bash
+pixi run -e illumina2lineage python --version
+pixi run -e illumina2lineage nextflow -version
+```
+
+To enter the environment shell:
+
+```bash
+pixi shell -e illumina2lineage
 ```
 
 ## Set up Java and Nexflow if not already installed
@@ -43,8 +105,6 @@ mkdir -p $HOME/.local/bin/
 mv nextflow $HOME/.local/bin/ 
 nextflow info
 ``` 
-
-Before you launch Nextflow, unset the Conda‐JDK variables and point to SDKMAN’s inside the conda environment.
 
 ```bash 
 unset JAVA_CMD JAVA_HOME

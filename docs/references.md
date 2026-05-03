@@ -1,7 +1,7 @@
 # References
 
 1. bamstats.pl script, 2012-2014 Genome Research Ltd (Author: Petr Danecek <pd3@sanger.ac.uk>)
-2. Anon, 2020. Anaconda Software Distribution, Anaconda Inc. Available at: https://docs.anaconda.com/.
+2. Fischer, T., Vollprecht, W., Zalmstra, B., Arts, R., de Jager, T., Fontan, A., Hines, A. D., Milford, M., Traversaro, S., Claes, D., & Raine, S. (2025). Pixi: Unified software development and distribution for robotics and AI. arXiv preprint arXiv:2511.04827v1.
 3. Philip Ewels, Måns Magnusson, Sverker Lundin, Max Käller, MultiQC: summarize analysis results for
    multiple tools and samples in a single report, Bioinformatics, Volume 32, Issue 19, October 2016, Pages
    3047–3048, https://doi.org/10.1093/bioinformatics/btw354

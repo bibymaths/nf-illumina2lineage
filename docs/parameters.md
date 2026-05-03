@@ -16,7 +16,13 @@ file or passed directly via the command line.
 ## Default Configuration
 
 ```bash
-nextflow run main.nf -with-conda
-```
+nextflow run main.nf -profile pixi
+``` 
+
+or 
+
+```bash
+pixi run run-pipeline
+``` 
 
 > 💡 All parameters can also be set directly via `-params` flag or in `nextflow.config`.

@@ -88,7 +88,7 @@ workflow {
  * Tools: aria2c (download), tar/pigz (extraction).
  */
 process downloadData {
-    publishDir "${params.intermediate}/${task.process}", mode: 'copy'
+    publishDir "${params.intermediate}/downloadData", mode: 'copy'
 
     output:
       path params.reads, emit: raw_list_ch
@@ -118,7 +118,7 @@ process downloadData {
  * Tools: wget (using NCBI E-utilities).
  */
 process referenceGenome {
-    publishDir "${params.intermediate}/${task.process}", mode: 'copy'
+    publishDir "${params.intermediate}/referenceGenome", mode: 'copy'
 
     output:
       path "reference.fasta"
@@ -150,7 +150,7 @@ process referenceGenome {
  */
 process qc {
     tag "$sample_id"
-    publishDir "${params.intermediate}/${task.process}", mode: 'copy'
+    publishDir "${params.intermediate}/qc", mode: 'copy'
 
     input:
       tuple val(sample_id), path(r1), path(r2)
@@ -160,17 +160,12 @@ process qc {
       path "${sample_id}.fastp.html", emit: qc_html
       path "${sample_id}.fastp.json", emit: qc_json
 
-    shell:
+    script:
     """
     set -euo pipefail
 
-    # 1. Pre-trimming QC
     fastqc -t ${task.cpus} "$r1" "$r2"
 
-    # 2. Trimming and Cleaning with Fastp
-    # --detect_adapter_for_pe: Auto-detect adapters
-    # --cut_right: Sliding window quality filtering
-    # --qualified_quality_phred 20: Minimum quality score
     fastp --detect_adapter_for_pe \\
           --overrepresentation_analysis \\
           --correction \\
@@ -183,16 +178,13 @@ process qc {
           -o ${sample_id}.R1.clean.fastq.gz \\
           -O ${sample_id}.R2.clean.fastq.gz
 
-    # 3. Post-trimming QC
     fastqc -t ${task.cpus} \\
            ${sample_id}.R1.clean.fastq.gz \\
            ${sample_id}.R2.clean.fastq.gz
 
-    # 4. Aggregate reports into MultiQC
     multiqc . -o .
     """
 }
-
 /*
  * Process: mapping
  * Purpose: Align cleaned reads to the reference genome.
@@ -200,7 +192,7 @@ process qc {
  */
 process mapping {
     tag "$sample_id"
-    publishDir "${params.intermediate}/${task.process}", mode: 'copy'
+    publishDir "${params.intermediate}/mapping", mode: 'copy'
 
     input:
       tuple val(sample_id), path(r1), path(r2)
@@ -230,7 +222,7 @@ process mapping {
  */
 process primerClipping {
   tag "$sample_id"
-  publishDir "${params.intermediate}/${task.process}", mode: 'copy'
+  publishDir "${params.intermediate}/primerClipping", mode: 'copy'
 
   input:
     tuple val(sample_id), path(bam_file)
@@ -243,17 +235,10 @@ process primerClipping {
   set -euo pipefail
 
   # 1. Prepare Primer Bedfile
-  # Download CleanPlex amplicon definitions
   wget -qO cleanplex.amplicons.bedpe -L https://osf.io/4nztj/download
 
-  # Fix Windows line endings (\r\n) using Python
-  python3 - <<'PY'
-from pathlib import Path
-p = Path("cleanplex.amplicons.bedpe")
-b = p.read_bytes()
-b = b.replace(b"\\r\\n", b"\\n").replace(b"\\r", b"\\n")
-p.write_bytes(b)
-PY
+  # Fix Windows/old-Mac line endings
+  sed -i 's/\\r\$//' cleanplex.amplicons.bedpe
 
   # Filter BEDPE to keep only SARS-CoV-2 entries and normalize chromosome names
   awk -v OFS='\\t' '
@@ -264,17 +249,23 @@ PY
     }
   ' cleanplex.amplicons.bedpe > SARSCoV2.amplicons.bedpe
 
+  # Validate primer BEDPE
+  if [ ! -s SARSCoV2.amplicons.bedpe ]; then
+      echo "ERROR: SARSCoV2.amplicons.bedpe is empty after filtering."
+      echo "First lines of downloaded BEDPE:"
+      head cleanplex.amplicons.bedpe
+      exit 1
+  fi
+
   # 2. Prepare BAM for Clipper
-  # Localize and re-index input BAM to ensure stable paths for the script
   cp "${bam_file}" input.bam
   samtools index input.bam
 
   # 3. Run BamClipper
-  # Soft-clips primers based on the BEDPE file
-  bamclipper.sh \
-      -b input.bam \
-      -p SARSCoV2.amplicons.bedpe \
-      -n ${task.cpus} \
+  bamclipper.sh \\
+      -b input.bam \\
+      -p SARSCoV2.amplicons.bedpe \\
+      -n ${task.cpus} \\
       -u 10 -d 10
 
   # Rename output to match pipeline convention
@@ -291,14 +282,18 @@ PY
  * Tool: Freebayes.
  */
 process variantCalling {
+  publishDir "${params.intermediate}/variantCalling", mode: 'copy'
+
   input:
     tuple val(sample_id), path(bam)
     path ref
+
   output:
     tuple val(sample_id), path("${sample_id}.vcf")
+
   script:
   """
-  # -f: Reference fasta
+  set -euo pipefail
   freebayes -f ${ref} "${bam}" > ${sample_id}.vcf
   """
 }
@@ -310,7 +305,7 @@ process variantCalling {
  */
 process consensusGeneration {
     tag "$sample_id"
-    publishDir "${params.intermediate}/${task.process}", mode: 'copy'
+    publishDir "${params.intermediate}/consensusGeneration", mode: 'copy'
 
     input:
       tuple val(sample_id), path(vcf)
@@ -346,7 +341,7 @@ process consensusGeneration {
  * Tool: cat.
  */
 process mergeConsensus {
-  publishDir "${params.intermediate}/${task.process}", mode: 'copy'
+  publishDir "${params.intermediate}/mergeConsensus", mode: 'copy'
 
   input:
     path fasta_files
@@ -377,36 +372,36 @@ process mergeConsensus {
  * Process: pangolinLineage
  * Purpose: Assign SARS-CoV-2 lineages (e.g., B.1.1.7) to the sequences.
  * Tool: Pangolin.
- * Dependencies: Requires 'bioconda::pangolin' and 'bioconda::pangolin-data'.
  */
 process pangolinLineage {
-    conda 'bioconda::pangolin bioconda::pangolin-data'
-
-    publishDir "${params.intermediate}/${task.process}", mode: 'copy'
+    publishDir "${params.intermediate}/pangolinLineage", mode: 'copy'
 
     input:
       path consensus_files
 
     output:
-      path "lineage_report.csv"
+      path "pangolin_out/lineage_report.csv", emit: lineage_report
 
     script:
     """
+    set -euo pipefail
+
     echo "Running Pangolin on ${consensus_files}..."
 
-    # Run Pangolin with specified threads
-    # Output is a CSV file containing lineage assignments
-    pangolin ${consensus_files} --threads ${task.cpus} --outfile lineage_report.csv
+    mkdir -p pangolin_out
+
+    pangolin ${consensus_files} \\
+      --threads ${task.cpus} \\
+      --outdir pangolin_out
     """
 }
-
 /*
  * Process: consensusQC
  * Purpose: Quality Control of consensus sequences (check for Ns, etc.).
  * Tool: President.
  */
 process consensusQC {
-    publishDir "${params.intermediate}/${task.process}", mode: 'copy'
+    publishDir "${params.intermediate}/consensusQC", mode: 'copy'
 
     input:
       path consensus_files
@@ -434,7 +429,7 @@ process consensusQC {
  * Tools: MAFFT (alignment), IQ-TREE (tree building).
  */
 process phylogeny {
-    publishDir "${params.intermediate}/${task.process}", mode: 'copy'
+    publishDir "${params.intermediate}/phylogeny", mode: 'copy'
 
     input:
       path consensus_files

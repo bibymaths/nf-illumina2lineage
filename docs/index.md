@@ -12,11 +12,11 @@ sequence generation, lineage annotation, and phylogenetic analysis.
 
 ### Key Features
 
-- Automated environment setup using `mamba` and `conda`
+- Automated environment setup using `pixi`
 - Comprehensive quality control with `fastqc` and `fastp`
 - Mapping and visualization using `minimap2`, `samtools`, and `IGV`
 - Primer sequence clipping for clean alignments
-- Variant calling with `freebayes`.
+- Variant calling with `freebayes`
 - Consensus sequence generation and lineage assignment with `pangolin`
 - Phylogenetic analysis and multiple sequence alignment with `mafft` and `iqtree`
 - Clear documentation and modular structure
@@ -26,7 +26,6 @@ sequence generation, lineage annotation, and phylogenetic analysis.
 - **Operating System**: Linux (tested on Fedora 38)
 - **Processor**: Intel i5 or higher, with multithreading support
 - **Memory**: Minimum 8 GB
-- **Software**: Anaconda/Miniconda, and the listed bioinformatics tools
 
 ## Dependencies
 
