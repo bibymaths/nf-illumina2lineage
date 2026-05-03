@@ -1,0 +1,13 @@
+# Global ownership
+* @bibymaths
+
+# Nextflow pipeline files
+main.nf @bibymaths
+nextflow.config @bibymaths
+
+# Documentation
+docs/ @bibymaths
+mkdocs.yml @bibymaths
+
+# Environments and dependencies
+environment.yml @bibymaths
