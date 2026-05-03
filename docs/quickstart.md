@@ -8,14 +8,13 @@ git clone https://github.com/bibymaths/nf-illumina2lineage.git
 cd nf-illumina2lineage
 ```
 
-````markdown
 ## Step 2: Install Pixi
 
 Install Pixi using the official installer:
 
 ```bash
 curl -fsSL https://pixi.sh/install.sh | bash
-````
+```
 
 Restart your shell, or reload your shell configuration:
 
