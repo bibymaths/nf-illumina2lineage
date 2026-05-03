@@ -18,9 +18,9 @@ bash Mambaforge-Linux-x86_64.sh
 ## Step 3: Create and Activate the Environment
 
 ```bash
-conda update -y conda
-mamba env create -p --file environment.yaml
-mamba activate nf-illumina2lineage
+conda env create -f environment.yml
+conda activate illumina2lineage
+python -m pip install -r requirements.txt
 ```
 
 ## Set up Java and Nexflow if not already installed
